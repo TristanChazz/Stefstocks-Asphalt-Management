@@ -442,17 +442,14 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
         if (profileError || !profile) throw new Error("Could not resolve operator profile or Company ID.");
 
-        // THE 100% SECURE, SCHEMA-MATCHED PAYLOAD
         const tier2Payload = {
             company_id: profile.company_id,
-            operator_id: user.id, // Mapped to your SQL schema
+            operator_id: user.id, // FORCE THIS VALUE
             scanned_at: entry.t || new Date().toISOString(),
             ticket_number: String(entry.truck || entry.ticket),
-            supplier_company: String(entry.company || "Unknown"), // Maps to entry.company
+            supplier_company: String(entry.company || "Unknown"),
             vehicle_registration: String(entry.registration || entry.truck),
             mix_type: String(entry.material || entry.mix),
-            
-            // Re-mapped to match your exact SQL column names
             delivered_mass: Number(entry.tonnage || 0),
             wasted_mass: Number(entry.wastageMass || 0),
             effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
@@ -463,20 +460,16 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
             target_brd: Number(entry.density || 0),
             calculated_thickness: Number(entry.thickness || 0),
             wastage_reason: String(entry.wastageReason || "N/A")
-            
-            // NOTE: 'customer' and 'cutback_added' are EXCLUDED here 
-            // because they do not exist in your pave_ops_logs SQL table.
         };
 
         const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
         
         if (insertError) {
             console.error('Database Rejection Details:', insertError);
-            alert(`Vault Error: ${insertError.message} (Code: ${insertError.code})`);
+            alert(`Vault Error: ${insertError.message}`);
         } else {
             console.log('Ticket successfully committed to centralized Vault.');
         }
-
     } catch (err) {
         console.error('Payload Preparation Failed:', err);
         alert(`Application Error: ${err.message}`);
