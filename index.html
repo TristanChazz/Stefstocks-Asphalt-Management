@@ -429,22 +429,15 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         // ==========================================
         function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
         
-       async function idbPut(entry) {
+      async function idbPut(entry) {
     try {
+        // 1. Ensure user is logged in
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("Unauthorized: No active user session found.");
 
-        const { data: profile, error: profileError } = await supabase
-            .from('operator_profiles')
-            .select('company_id')
-            .eq('id', user.id)
-            .single();
-
-        if (profileError || !profile) throw new Error("Could not resolve operator profile or Company ID.");
-
+        // 2. The Lean Payload
+        // We NO LONGER send company_id or operator_id. The Database Trigger handles it automatically.
         const tier2Payload = {
-            company_id: profile.company_id,
-            operator_id: user.id, // FORCE THIS VALUE
             scanned_at: entry.t || new Date().toISOString(),
             ticket_number: String(entry.truck || entry.ticket),
             supplier_company: String(entry.company || "Unknown"),
@@ -462,6 +455,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
             wastage_reason: String(entry.wastageReason || "N/A")
         };
 
+        // 3. Fire into the Vault
         const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
         
         if (insertError) {
