@@ -429,7 +429,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         // ==========================================
         function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
         
-        async function idbPut(entry) {
+       async function idbPut(entry) {
     try {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("Unauthorized: No active user session found.");
@@ -442,25 +442,30 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
         if (profileError || !profile) throw new Error("Could not resolve operator profile or Company ID.");
 
-        // The Master Payload Contract (Strict Database Mapping)
+        // THE 100% SECURE, SCHEMA-MATCHED PAYLOAD
         const tier2Payload = {
             company_id: profile.company_id,
+            operator_id: user.id, // Mapped to your SQL schema
             scanned_at: entry.t || new Date().toISOString(),
-            ticket_number: String(entry.truck),
-            vehicle_registration: String(entry.registration),
-            mix_type: String(entry.material),
-            effective_mass: Number(entry.effectiveMass || entry.tonnage),
-            spread_rate: Number(entry.spreadRate),
-
-            // Extended Operational Metrics
-            total_mass_delivered: Number(entry.tonnage),
-            total_wastage: Number(entry.wastageMass || 0),
-            total_area_covered: Number(entry.area || 0),
-            thickness: Number(entry.thickness || 0),
+            ticket_number: String(entry.truck || entry.ticket),
+            supplier_company: String(entry.company || "Unknown"), // Maps to entry.company
+            vehicle_registration: String(entry.registration || entry.truck),
+            mix_type: String(entry.material || entry.mix),
+            
+            // Re-mapped to match your exact SQL column names
+            delivered_mass: Number(entry.tonnage || 0),
+            wasted_mass: Number(entry.wastageMass || 0),
+            effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
+            paved_length: Number(entry.length || 0),
+            paved_width: Number(entry.width || 0),
+            total_area: Number(entry.area || 0),
+            spread_rate: Number(entry.spreadRate || 0),
             target_brd: Number(entry.density || 0),
-            cutback_added: String(entry.cutbackAdded || "No"),
-            wastage_reason: String(entry.wastageReason || "N/A"),
-            customer: String(entry.customer || "Unknown")
+            calculated_thickness: Number(entry.thickness || 0),
+            wastage_reason: String(entry.wastageReason || "N/A")
+            
+            // NOTE: 'customer' and 'cutback_added' are EXCLUDED here 
+            // because they do not exist in your pave_ops_logs SQL table.
         };
 
         const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
@@ -486,26 +491,32 @@ async function idbGetAll() {
         return []; 
     }
     
-    // The Reverse Translation Bridge (Restores full frontend state for CSV exports)
+    // REVERSE TRANSLATION: Map the SQL columns back to the UI's expected variables
     return (data || []).map(row => ({
         id: row.id,
         t: row.scanned_at,
         ticket: row.ticket_number,
-        truck: row.ticket_number, 
+        truck: row.ticket_number,
         registration: row.vehicle_registration,
+        company: row.supplier_company,
         mix: row.mix_type,
         material: row.mix_type,
-        tonnage: row.total_mass_delivered,
+        
+        // Reverse mapped from SQL schema names
+        tonnage: row.delivered_mass,
+        wastageMass: row.wasted_mass,
         effectiveMass: row.effective_mass,
+        length: row.paved_length,
+        width: row.paved_width,
+        area: row.total_area,
         spreadRate: row.spread_rate,
-        wastageMass: row.total_wastage,
-        area: row.total_area_covered,
-        thickness: row.thickness,
         density: row.target_brd,
-        cutbackAdded: row.cutback_added,
+        thickness: row.calculated_thickness,
         wastageReason: row.wastage_reason,
-        customer: row.customer,
-        company: "StefStocks Coastal" // Hardcoded for frontend display integrity
+        
+        // Fallbacks for frontend CSV export since these aren't in the database
+        customer: "Not tracked in DB",
+        cutbackAdded: "Not tracked in DB"
     }));
 }
 
