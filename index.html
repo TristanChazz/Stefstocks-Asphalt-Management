@@ -431,11 +431,9 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         
         async function idbPut(entry) {
     try {
-        // 1. Fetch the active user session to determine who is inserting data
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("Unauthorized: No active user session found.");
 
-        // 2. Fetch this user's company_id from the operator_profiles bridge table
         const { data: profile, error: profileError } = await supabase
             .from('operator_profiles')
             .select('company_id')
@@ -444,33 +442,27 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
         if (profileError || !profile) throw new Error("Could not resolve operator profile or Company ID.");
 
-        // 3. Build the complete, multi-tenant database payload
+        // The Master Payload Contract (Strict Database Mapping)
         const tier2Payload = {
-            company_id: profile.company_id,             // Fixed multi-tenant mapping
+            company_id: profile.company_id,
             scanned_at: entry.t || new Date().toISOString(),
-            ticket_number: entry.ticket,
-            vehicle_registration: entry.truck,
-            mix_type: entry.mix,
-            
-            // Core COTO 2020 parameters and calculations
-            total_mass_delivered: entry.tonnage,
-            effective_mass: entry.effectiveMass,
-            total_wastage: entry.wastageMass || 0,
-            total_area_covered: entry.area || 0,
-            avg_spread_rate: entry.spreadRate || 0,
-            
-            // Structural design thickness constraints
-            thickness: entry.thickness || 0,
-            density: entry.density || 0,
-            length: entry.length || 0,
-            width: entry.width || 0,
-            
-            // Operational flags
-            cutback_added: entry.cutbackAdded || "No",
-            wastage_reason: entry.wastageReason || "N/A"
+            ticket_number: String(entry.truck),
+            vehicle_registration: String(entry.registration),
+            mix_type: String(entry.material),
+            effective_mass: Number(entry.effectiveMass || entry.tonnage),
+            spread_rate: Number(entry.spreadRate),
+
+            // Extended Operational Metrics
+            total_mass_delivered: Number(entry.tonnage),
+            total_wastage: Number(entry.wastageMass || 0),
+            total_area_covered: Number(entry.area || 0),
+            thickness: Number(entry.thickness || 0),
+            target_brd: Number(entry.density || 0),
+            cutback_added: String(entry.cutbackAdded || "No"),
+            wastage_reason: String(entry.wastageReason || "N/A"),
+            customer: String(entry.customer || "Unknown")
         };
 
-        // 4. Fire the payload into the master ledger
         const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
         
         if (insertError) {
@@ -486,28 +478,38 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
     }
 }
 
-async function idbGetAll(){ 
+async function idbGetAll() { 
     const { data, error } = await supabase.from('pave_ops_logs').select('*'); 
     if (error) { 
         console.error('Fetch Error:', error); 
-        alert(`Supabase Error: ${error.message}. Please ensure Row Level Security (RLS) is properly configured for the 'pave_ops_logs' table.`);
+        alert(`Supabase Error: ${error.message}. Please check RLS policies.`);
         return []; 
     }
     
-    // Translate Backend (Tier 2 Vault) -> Frontend 
-    // This stops the UI history log from showing 'undefined'
+    // The Reverse Translation Bridge (Restores full frontend state for CSV exports)
     return (data || []).map(row => ({
         id: row.id,
         t: row.scanned_at,
         ticket: row.ticket_number,
-        truck: row.vehicle_registration,
+        truck: row.ticket_number, 
+        registration: row.vehicle_registration,
         mix: row.mix_type,
+        material: row.mix_type,
+        tonnage: row.total_mass_delivered,
         effectiveMass: row.effective_mass,
-        spreadRate: row.spread_rate
+        spreadRate: row.spread_rate,
+        wastageMass: row.total_wastage,
+        area: row.total_area_covered,
+        thickness: row.thickness,
+        density: row.target_brd,
+        cutbackAdded: row.cutback_added,
+        wastageReason: row.wastage_reason,
+        customer: row.customer,
+        company: "StefStocks Coastal" // Hardcoded for frontend display integrity
     }));
 }
 
-async function idbDelete(id){ 
+async function idbDelete(id) { 
     const { error } = await supabase.from('pave_ops_logs').delete().eq('id', id); 
     if (error) { 
         console.error('Delete Error:', error); 
