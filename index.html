@@ -690,8 +690,24 @@ async function idbDelete(id) {
 
         function downloadBlob(filename, blob){ const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
         downloadDateBtn.addEventListener('click', async ()=>{ const date = exportDateInput.value; if(!date) return alert('Select Date'); const logs = (await idbGetAll()).filter(l => l.t.slice(0,10) === date); if(!logs.length) return alert('No data'); downloadBlob(`SS_Coastal_PaveOps_${date}.csv`, new Blob([logsToCSV(logs)], {type:'text/csv'})); setStatus('REPORT EXPORTED', true); });
-        clearAllBtn.addEventListener('click', async ()=>{ if(confirm('Permanently clear database?')){ const { error } = await supabase.from('logs').delete().neq('id', '_none_'); if (!error) { await renderLogs(); setStatus('LEDGER CLEAR', false); } else { alert('Failed to clear database. RLS Error?'); } } });
+       // --- MASTER VAULT CLEAR LEDGER PROTOCOL ---
+        clearAllBtn.addEventListener('click', async () => { 
+            if(confirm('WARNING: Are you sure you want to permanently format the centralized ledger?')) { 
+                // 1. Point explicitly to the Tier 2 Master Vault
+                // 2. Use a valid dummy UUID to safely trigger a full table sweep
+                const { error } = await supabase.from('pave_ops_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000'); 
+                
+                if (!error) { 
+                    await renderLogs(); 
+                    setStatus('LEDGER SECURELY PURGED', false); 
+                } else { 
+                    console.error('Purge Error:', error);
+                    alert('Vault Error: Failed to clear ledger. Check RLS policies.'); 
+                } 
+            } 
+        });
 
+        // Initialize the export date picker to today's date
         document.getElementById('exportDate').valueAsDate = new Date();
     })();
     </script>
