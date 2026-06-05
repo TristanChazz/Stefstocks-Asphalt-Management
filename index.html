@@ -435,34 +435,33 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("Unauthorized: No active user session found.");
 
-        // 2. The Lean Payload
-        // We NO LONGER send company_id or operator_id. The Database Trigger handles it automatically.
-        const tier2Payload = {
-            scanned_at: entry.t || new Date().toISOString(),
-            ticket_number: String(entry.truck || entry.ticket),
-            supplier_company: String(entry.company || "Unknown"),
-            vehicle_registration: String(entry.registration || entry.truck),
-            mix_type: String(entry.material || entry.mix),
-            delivered_mass: Number(entry.tonnage || 0),
-            wasted_mass: Number(entry.wastageMass || 0),
-            effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
-            paved_length: Number(entry.length || 0),
-            paved_width: Number(entry.width || 0),
-            total_area: Number(entry.area || 0),
-            spread_rate: Number(entry.spreadRate || 0),
-            target_brd: Number(entry.density || 0),
-            calculated_thickness: Number(entry.thickness || 0),
-            wastage_reason: String(entry.wastageReason || "N/A")
+        // 2. Map the data EXACTLY as the RPC Engine expects it
+        const rpcPayload = {
+            p_ticket_number: String(entry.truck || entry.ticket),
+            p_supplier_company: String(entry.company || "Unknown"),
+            p_vehicle_registration: String(entry.registration || entry.truck),
+            p_mix_type: String(entry.material || entry.mix),
+            p_delivered_mass: Number(entry.tonnage || 0),
+            p_wasted_mass: Number(entry.wastageMass || 0),
+            p_effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
+            p_paved_length: Number(entry.length || 0),
+            p_paved_width: Number(entry.width || 0),
+            p_total_area: Number(entry.area || 0),
+            p_spread_rate: Number(entry.spreadRate || 0),
+            p_target_brd: Number(entry.density || 0),
+            p_calculated_thickness: Number(entry.thickness || 0),
+            p_wastage_reason: String(entry.wastageReason || "N/A"),
+            p_scanned_at: entry.t || new Date().toISOString()
         };
 
-        // 3. Fire into the Vault
-        const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
+        // 3. Call the Superuser Function directly
+        const { error: rpcError } = await supabase.rpc('log_scanned_ticket', rpcPayload);
         
-        if (insertError) {
-            console.error('Database Rejection Details:', insertError);
-            alert(`Vault Error: ${insertError.message}`);
+        if (rpcError) {
+            console.error('RPC Rejection Details:', rpcError);
+            alert(`Vault Error: ${rpcError.message}`);
         } else {
-            console.log('Ticket successfully committed to centralized Vault.');
+            console.log('Ticket successfully committed via RPC Engine.');
         }
     } catch (err) {
         console.error('Payload Preparation Failed:', err);
