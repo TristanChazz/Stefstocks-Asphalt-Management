@@ -429,22 +429,61 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         // ==========================================
         function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
         
-        async function idbPut(entry){ 
-    // Translate Frontend -> Backend (Tier 2 Vault)
-    const tier2Payload = {
-        scanned_at: entry.t,
-        ticket_number: entry.ticket,
-        vehicle_registration: entry.truck,
-        mix_type: entry.mix,
-        effective_mass: entry.effectiveMass,
-        spread_rate: entry.spreadRate
-    };
+        async function idbPut(entry) {
+    try {
+        // 1. Fetch the active user session to determine who is inserting data
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("Unauthorized: No active user session found.");
 
-    const { error } = await supabase.from('pave_ops_logs').insert([tier2Payload]); 
-    if (error) { 
-        console.error('Insert Error:', error); 
-        alert('Vault Error: Failed to save to database. Check connection or RLS.'); 
-    } 
+        // 2. Fetch this user's company_id from the operator_profiles bridge table
+        const { data: profile, error: profileError } = await supabase
+            .from('operator_profiles')
+            .select('company_id')
+            .eq('id', user.id)
+            .single();
+
+        if (profileError || !profile) throw new Error("Could not resolve operator profile or Company ID.");
+
+        // 3. Build the complete, multi-tenant database payload
+        const tier2Payload = {
+            company_id: profile.company_id,             // Fixed multi-tenant mapping
+            scanned_at: entry.t || new Date().toISOString(),
+            ticket_number: entry.ticket,
+            vehicle_registration: entry.truck,
+            mix_type: entry.mix,
+            
+            // Core COTO 2020 parameters and calculations
+            total_mass_delivered: entry.tonnage,
+            effective_mass: entry.effectiveMass,
+            total_wastage: entry.wastageMass || 0,
+            total_area_covered: entry.area || 0,
+            avg_spread_rate: entry.spreadRate || 0,
+            
+            // Structural design thickness constraints
+            thickness: entry.thickness || 0,
+            density: entry.density || 0,
+            length: entry.length || 0,
+            width: entry.width || 0,
+            
+            // Operational flags
+            cutback_added: entry.cutbackAdded || "No",
+            wastage_reason: entry.wastageReason || "N/A"
+        };
+
+        // 4. Fire the payload into the master ledger
+        const { error: insertError } = await supabase.from('pave_ops_logs').insert([tier2Payload]);
+        
+        if (insertError) {
+            console.error('Database Rejection Details:', insertError);
+            alert(`Vault Error: ${insertError.message} (Code: ${insertError.code})`);
+        } else {
+            console.log('Ticket successfully committed to centralized Vault.');
+        }
+
+    } catch (err) {
+        console.error('Payload Preparation Failed:', err);
+        alert(`Application Error: ${err.message}`);
+    }
 }
 
 async function idbGetAll(){ 
