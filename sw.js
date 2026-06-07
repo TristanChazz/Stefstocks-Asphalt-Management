@@ -44,23 +44,33 @@ self.addEventListener('activate', (event) => {
 });
 
 // 3. FETCH EVENT (Network-First Strategy)
-// Always try Vercel first. If the Site Agent has no cell signal, fall back to Cache.
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        // If network fetch is successful, clone it to the cache to keep it fresh
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        // Network failed (offline). Serve the cached version.
-        return caches.match(event.request);
-      })
-  );
+  // Only attempt to cache or intercept http/https requests
+  const requestUrl = new URL(event.request.url);
+  
+  if (requestUrl.protocol === 'http:' || requestUrl.protocol === 'https:') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          // If network fetch is successful, clone it to the cache to keep it fresh
+          // We only cache 'basic' responses (standard same-origin/CORS)
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache).catch((err) => {
+                console.warn('Cache write failed, but fetch was successful:', err);
+              });
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Network failed (offline). Serve the cached version.
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // If it's not http/https (e.g., chrome-extension), just let the browser handle it
+    event.respondWith(fetch(event.request));
+  }
 });
