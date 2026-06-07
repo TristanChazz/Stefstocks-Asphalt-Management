@@ -610,18 +610,21 @@ async function idbDelete(id) {
 
         async function handleDecodedText(decodedText) {
     // --- HARDENED DELIVERY DATE PARSER ---
-    let extractedDate = new Date().toISOString().split('T')[0]; // Fallback to today
+    let extractedDate = new Date().toISOString().split('T')[0]; // Default to today
     
-    // Look for the "Despatched:" line and capture the date portion (DD/MM/YYYY)
-    const despatchMatch = decodedText.match(/Despatched:\s*(\d{2}\/\d{2}\/\d{4})/);
+    // Look for the "Despatched:" line. 
+    // This regex looks for the date even if there are spaces or surrounding characters.
+    const despatchMatch = decodedText.match(/Despatched:\s*(\d{2}\/\d{2}\/\d{4})/i);
     
     if (despatchMatch && despatchMatch[1]) {
         // Convert DD/MM/YYYY to YYYY-MM-DD for Supabase
         const parts = despatchMatch[1].split('/');
+        // Ensure parts[0] is day, parts[1] is month, parts[2] is year
         extractedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
         console.log("SUCCESS: Delivery Date extracted:", extractedDate);
     } else {
-        console.warn("WARNING: Despatched date not found in QR. Defaulting to system date.");
+        // Log the failure to console so you can see exactly what text it's failing to parse
+        console.warn("WARNING: Despatched date not found in QR string:", decodedText);
     }
             
             // Store it globally so the payload can grab it when the user submits
