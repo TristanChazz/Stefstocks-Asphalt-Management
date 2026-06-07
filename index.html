@@ -608,24 +608,21 @@ async function idbDelete(id) {
             return parsed;
         }
 
-        async function handleDecodedText(decodedText){
-            // --- UNIVERSAL DATE EXTRACTION ENGINE ---
-            let extractedDate = new Date().toISOString().split('T')[0]; // Default to today
-            const dateRegex = /\b(\d{4}-\d{2}-\d{2}|\d{2}[\/.-]\d{2}[\/.-]\d{4})\b/;
-            const dateMatch = decodedText.match(dateRegex);
-
-            if (dateMatch) {
-                let rawDate = dateMatch[0].replace(/[\/.]/g, '-');
-                if (rawDate.match(/^\d{2}-\d{2}-\d{4}$/)) {
-                    const parts = rawDate.split('-');
-                    extractedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                } else {
-                    extractedDate = rawDate;
-                }
-                console.log("SUCCESS: Date extracted from Delivery Note:", extractedDate);
-            } else {
-                console.log("WARNING: No date found in QR. Defaulting to today:", extractedDate);
-            }
+        async function handleDecodedText(decodedText) {
+    // --- HARDENED DELIVERY DATE PARSER ---
+    let extractedDate = new Date().toISOString().split('T')[0]; // Fallback to today
+    
+    // Look for the "Despatched:" line and capture the date portion (DD/MM/YYYY)
+    const despatchMatch = decodedText.match(/Despatched:\s*(\d{2}\/\d{2}\/\d{4})/);
+    
+    if (despatchMatch && despatchMatch[1]) {
+        // Convert DD/MM/YYYY to YYYY-MM-DD for Supabase
+        const parts = despatchMatch[1].split('/');
+        extractedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        console.log("SUCCESS: Delivery Date extracted:", extractedDate);
+    } else {
+        console.warn("WARNING: Despatched date not found in QR. Defaulting to system date.");
+    }
             
             // Store it globally so the payload can grab it when the user submits
             window.currentDeliveryDate = extractedDate;
