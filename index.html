@@ -451,9 +451,9 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
             p_target_brd: Number(entry.density || 0),
             p_calculated_thickness: Number(entry.thickness || 0),
             p_wastage_reason: String(entry.wastageReason || "N/A"),
+            p_delivery_date: window.currentDeliveryDate || new Date().toISOString().split('T')[0], 
             p_scanned_at: entry.t || new Date().toISOString()
         };
-
         // 3. Call the Superuser Function directly
         const { error: rpcError } = await supabase.rpc('log_scanned_ticket', rpcPayload);
         
@@ -609,6 +609,28 @@ async function idbDelete(id) {
         }
 
         async function handleDecodedText(decodedText){
+            // --- UNIVERSAL DATE EXTRACTION ENGINE ---
+            let extractedDate = new Date().toISOString().split('T')[0]; // Default to today
+            const dateRegex = /\b(\d{4}-\d{2}-\d{2}|\d{2}[\/.-]\d{2}[\/.-]\d{4})\b/;
+            const dateMatch = decodedText.match(dateRegex);
+
+            if (dateMatch) {
+                let rawDate = dateMatch[0].replace(/[\/.]/g, '-');
+                if (rawDate.match(/^\d{2}-\d{2}-\d{4}$/)) {
+                    const parts = rawDate.split('-');
+                    extractedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                } else {
+                    extractedDate = rawDate;
+                }
+                console.log("SUCCESS: Date extracted from Delivery Note:", extractedDate);
+            } else {
+                console.log("WARNING: No date found in QR. Defaulting to today:", extractedDate);
+            }
+            
+            // Store it globally so the payload can grab it when the user submits
+            window.currentDeliveryDate = extractedDate;
+            // ----------------------------------------
+
             const parsed = parseDecoded(decodedText); if(video.srcObject) closeInApp.click();
             modalMass.innerText = parsed.tonnage > 0 ? parsed.tonnage.toFixed(2) : "0.00";
             rawMassVal.value = parsed.tonnage; rawTicketVal.value = parsed.truck; rawMixVal.value = parsed.material; rawCompanyVal.value = parsed.company; rawCustomerVal.value = parsed.customer; rawRegVal.value = parsed.registration;
