@@ -106,42 +106,43 @@
 <body class="bg-themebg text-themetext p-4 md:p-8 antialiased selection:bg-themeaccent selection:text-themebtntext">
 
     <div id="authGate" class="max-w-md mx-auto mt-20 bg-themepanel p-8 rounded-2xl border border-themeborder shadow-2xl text-center relative overflow-hidden flex flex-col items-center">
-        <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
-        <img src="assets/client-logo.png" alt="Titan Core Engine Logo" class="h-40 mb-4 rounded-lg shadow-lg">
-        <h2 class="text-xl font-black uppercase tracking-wider text-themetext mb-2">Titan Core Engine</h2>
-        <p class="text-themeaccent mb-6 text-xs font-code uppercase tracking-widest font-bold">Pave Ops Infrastructure</p>
-        
-        <div class="w-full text-left space-y-4 mb-6">
-            <div>
-                <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Corporate Email</label>
-                <input type="email" id="authEmail" placeholder="user@titancore.com" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+    <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+    <img src="assets/client-logo.png" alt="Titan Core Engine Logo" class="h-40 mb-4 rounded-lg shadow-lg">
+    <h2 class="text-xl font-black uppercase tracking-wider text-themetext mb-2">Titan Core Engine</h2>
+    <p class="text-themeaccent mb-6 text-xs font-code uppercase tracking-widest font-bold">Pave Ops Infrastructure</p>
+    
+    <div class="w-full text-left space-y-4 mb-6">
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Corporate Email</label>
+            <input type="email" id="authEmail" placeholder="user@titancore.com" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+        </div>
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Password</label>
+            <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+        </div>
+
+        <!-- EULA SCROLL BOX -->
+        <div class="mt-2">
+            <div class="p-3 bg-themeinput border border-themeborder rounded-lg text-[10px] text-thememuted h-32 overflow-y-auto font-code mb-3 shadow-inner">
+                <h4 class="font-black text-themeaccent mb-2 uppercase tracking-widest text-xs">TITAN DIGITAL PRODUCTIONS — SAAS PILOT AGREEMENT</h4>
+                <p class="mb-2"><strong class="text-themetext">Intellectual Property:</strong> The "PaveOps" software, including all underlying code, 3D architecture, algorithms, and spatial telemetry engines, is the exclusive proprietary intellectual property of Titan Digital Productions, a division of Titan Consolidated.</p>
+                <p class="mb-2"><strong class="text-themetext">Limited License:</strong> By logging into this portal, the User and their representing Corporate Entity acknowledge that they are being granted a limited, temporary, non-transferable, and revocable license to beta-test the software.</p>
+                <p class="mb-2"><strong class="text-themetext">No Transfer of Rights:</strong> The Corporate Entity utilizing this pilot program holds absolutely no claim, right, or ownership over the PaveOps software, its development, or its future commercialization.</p>
+                <p><strong class="text-themetext">Confidentiality:</strong> The metrics, interfaces, and capabilities of this system are trade secrets of Titan Digital Productions and may not be reverse-engineered, copied, or shared with competing software developers.</p>
             </div>
-            <div>
-                <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Password</label>
-                <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+            <div class="flex items-start gap-2">
+                <input id="eulaCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-themeaccent cursor-pointer shrink-0">
+                <label for="eulaCheckbox" class="text-xs text-gray-300 cursor-pointer select-none leading-relaxed">
+                    I have read and agree to the <span class="text-themeaccent font-bold">End User License Agreement (EULA)</span>.
+                </label>
             </div>
+            <p id="eulaError" class="text-rose-500 text-[10px] font-bold mt-1.5 hidden uppercase tracking-widest">You must accept the EULA to proceed.</p>
         </div>
-        <!-- ADD THIS: insert between the password div and the loginBtn -->
-    <div class="mt-4 mb-2">
-        <div class="p-3 bg-themeinput border border-themeborder rounded-lg text-[10px] text-thememuted h-28 overflow-y-auto font-code mb-3 shadow-inner">
-            <h4 class="font-black text-themeaccent mb-2 uppercase tracking-widest text-xs">TITAN DIGITAL PRODUCTIONS — SAAS PILOT AGREEMENT</h4>
-            <p class="mb-2"><strong class="text-themetext">Intellectual Property:</strong> The "PaveOps" software, including all underlying code, 3D architecture, algorithms, and spatial telemetry engines, is the exclusive proprietary intellectual property of Titan Digital Productions.</p>
-            <p class="mb-2"><strong class="text-themetext">Limited License:</strong> By logging in, the User acknowledges a limited, temporary, non-transferable, and revocable license to beta-test the software.</p>
-            <p class="mb-2"><strong class="text-themetext">No Transfer of Rights:</strong> The Corporate Entity holds no claim or ownership over PaveOps software, its development, or future commercialization.</p>
-            <p><strong class="text-themetext">Confidentiality:</strong> Metrics, interfaces, and capabilities are trade secrets and may not be reverse-engineered or shared.</p>
-        </div>
-        <div class="flex items-start gap-2">
-            <input id="eulaCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-themeaccent cursor-pointer">
-            <label for="eulaCheckbox" class="text-xs text-gray-300 cursor-pointer select-none">
-                I have read and agree to the <span class="text-themeaccent font-bold">End User License Agreement</span>.
-            </label>
-        </div>
-        <p id="eulaError" class="text-rose-500 text-[10px] font-bold mt-1 hidden uppercase tracking-widest">You must accept the EULA to proceed.</p>
-    </div>
 
         <button id="loginBtn" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black tracking-widest uppercase py-4 px-4 rounded-xl shadow-lg transition-all">Sign In</button>
-        <p id="authError" class="text-rose-500 font-code text-xs mt-4 hidden uppercase tracking-wide bg-rose-950/20 py-2 px-3 rounded border border-rose-900/50">Invalid Credentials.</p>
+        <p id="authError" class="text-rose-500 font-code text-xs mt-2 hidden uppercase tracking-wide bg-rose-950/20 py-2 px-3 rounded border border-rose-900/50">Invalid Credentials.</p>
     </div>
+</div>
 
     <div id="appInterface" class="max-w-xl mx-auto hidden pb-24">
         
@@ -951,7 +952,7 @@
     loginBtn.disabled = true;
     authError.classList.add('hidden');
 
-    // FORENSIC AUDIT — non-blocking, won't halt login if it fails
+    // FORENSIC AUDIT — non-blocking, will never halt login if it fails
     try {
         let ipAddress = 'unknown';
         try {
@@ -972,8 +973,7 @@
             company_id: 'Stefanutti-Pilot'
         }]);
     } catch (auditErr) {
-        // Audit failure must never block authentication
-        console.error("Audit log failed:", auditErr);
+        console.error("Audit log failed, login continues:", auditErr);
     }
 
     // CORE AUTHENTICATION
