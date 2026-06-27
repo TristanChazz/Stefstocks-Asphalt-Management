@@ -55,412 +55,117 @@
     </script>
 
     <style>
-    /* ============================================
-       TITAN CORE — COMMAND CENTRE UI v2
-    ============================================ */
-    
-    * { transition: background-color 0.2s ease, border-color 0.25s ease, color 0.2s ease; }
-    
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: var(--bg-app); 
-        color: var(--text-main); 
-    }
-    
-    .font-code { font-family: 'JetBrains Mono', monospace; }
-    
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--theme-accent); border-radius: 10px; }
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-app); color: var(--text-main); }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-app); }
+        ::-webkit-scrollbar-thumb { background: var(--theme-accent); border-radius: 10px; }
 
-    /* ── THEME TOKENS ── */
-    :root, [data-theme="dark"] {
-        --bg-app: #080c10;
-        --bg-panel: #0f1520;
-        --bg-input: #161f2e;
-        --border-color: #1e2d42;
-        --border-glow: #f59e0b;
-        --text-main: #f1f5f9;
-        --text-muted: #4a5568;
-        --theme-accent: #f59e0b;
-        --theme-accent-hover: #d97706;
-        --theme-accent-dim: rgba(245, 158, 11, 0.08);
-        --theme-accent-glow: rgba(245, 158, 11, 0.25);
-        --btn-text: #080c10;
-        --theme-secondary: #080c10;
-        --danger: #ef4444;
-        --danger-dim: rgba(239, 68, 68, 0.08);
-    }
+        :root, [data-theme="dark"] {
+            --bg-app: #0b0f14;          
+            --bg-panel: #141a22;        
+            --bg-input: #1c2430;        
+            --border-color: #242f3e;    
+            --text-main: #f8fafc;       
+            --text-muted: #64748b;      
+            --theme-accent: #10b981;    
+            --theme-accent-hover: #059669; 
+            --btn-text: #ffffff;        
+            --theme-secondary: #0b0f14;
+        }
 
-    [data-theme="light"] {
-        --bg-app: #f8fafc;
-        --bg-panel: #ffffff;
-        --bg-input: #f1f5f9;
-        --border-color: #e2e8f0;
-        --border-glow: #d97706;
-        --text-main: #0f172a;
-        --text-muted: #94a3b8;
-        --theme-accent: #d97706;
-        --theme-accent-hover: #b45309;
-        --theme-accent-dim: rgba(217, 119, 6, 0.08);
-        --theme-accent-glow: rgba(217, 119, 6, 0.2);
-        --btn-text: #ffffff;
-        --theme-secondary: #f1f5f9;
-        --danger: #dc2626;
-        --danger-dim: rgba(220, 38, 38, 0.08);
-    }
+        [data-theme="light"] {
+            --bg-app: #f8fafc;          
+            --bg-panel: #ffffff;        
+            --bg-input: #f1f5f9;        
+            --border-color: #e2e8f0;    
+            --text-main: #0f172a;       
+            --text-muted: #94a3b8;      
+            --theme-accent: #16a34a;    
+            --theme-accent-hover: #15803d; 
+            --btn-text: #ffffff;        
+            --theme-secondary: #f1f5f9;
+        }
 
-    /* ── ANIMATED ACCENT LINE ── */
-    @keyframes accentSlide {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(0); }
-    }
-    .accent-line {
-        position: absolute; top: 0; left: 0;
-        width: 100%; height: 2px;
-        background: linear-gradient(90deg, transparent, var(--theme-accent), transparent);
-        animation: accentSlide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    /* ── SCANLINE BOOT EFFECT ── */
-    @keyframes scanlineScroll {
-        0% { transform: translateY(-100%); }
-        100% { transform: translateY(100vh); }
-    }
-    @keyframes bootFadeIn {
-        0% { opacity: 0; filter: blur(8px); transform: scale(0.97); }
-        100% { opacity: 1; filter: blur(0); transform: scale(1); }
-    }
-    .boot-animate {
-        animation: bootFadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-    }
-    .scanline-overlay {
-        pointer-events: none;
-        position: fixed; inset: 0; z-index: 9999;
-        background: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0,0,0,0.03) 2px,
-            rgba(0,0,0,0.03) 4px
-        );
-    }
-
-    /* ── PANEL ENTRY ANIMATION ── */
-    @keyframes panelUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    .panel-enter { animation: panelUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .panel-enter-delay-1 { animation: panelUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
-    .panel-enter-delay-2 { animation: panelUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
-    .panel-enter-delay-3 { animation: panelUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both; }
-
-    /* ── INPUT GLOW ON FOCUS ── */
-    .titan-input {
-        width: 100%;
-        background: var(--bg-input);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 12px 14px;
-        color: var(--text-main);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.8rem;
-        outline: none;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .titan-input:focus {
-        border-color: var(--theme-accent);
-        box-shadow: 0 0 0 3px var(--theme-accent-glow), 0 0 20px var(--theme-accent-dim);
-    }
-
-    /* ── PRIMARY BUTTON ── */
-    .titan-btn {
-        width: 100%;
-        background: var(--theme-accent);
-        color: var(--btn-text);
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 900;
-        font-size: 0.7rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        padding: 16px;
-        border-radius: 12px;
-        border: none;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-    }
-    .titan-btn:hover {
-        background: var(--theme-accent-hover);
-        transform: translateY(-1px);
-        box-shadow: 0 8px 24px var(--theme-accent-glow);
-    }
-    .titan-btn:active { transform: translateY(0); }
-    .titan-btn::after {
-        content: '';
-        position: absolute; inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
-        pointer-events: none;
-    }
-
-    /* ── SHIMMER ON BTN CLICK ── */
-    @keyframes btnShimmer {
-        0% { left: -100%; }
-        100% { left: 200%; }
-    }
-    .titan-btn::before {
-        content: '';
-        position: absolute; top: 0; left: -100%;
-        width: 60%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-        transition: none;
-    }
-    .titan-btn:hover::before {
-        animation: btnShimmer 0.6s ease forwards;
-    }
-
-    /* ── CARD HOVER LIFT ── */
-    .titan-card {
-        background: var(--bg-panel);
-        border: 1px solid var(--border-color);
-        border-radius: 18px;
-        transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .titan-card:hover {
-        border-color: rgba(245, 158, 11, 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.1);
-    }
-
-    /* ── STATUS PULSE ── */
-    @keyframes statusPulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-    }
-    .status-dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: var(--theme-accent);
-        animation: statusPulse 2s ease-in-out infinite;
-        display: inline-block;
-        margin-right: 6px;
-        flex-shrink: 0;
-    }
-    .status-dot.danger { background: var(--danger); }
-
-    /* ── ACCENT GLOW BORDER ── */
-    .glow-border {
-        box-shadow: 0 0 0 1px var(--border-color), 0 0 20px var(--theme-accent-dim);
-    }
-
-    /* ── NAV TAB ACTIVE INDICATOR ── */
-    .nav-tab-btn { position: relative; }
-    .nav-tab-btn.active-tab::after {
-        content: '';
-        position: absolute; bottom: -2px; left: 50%;
-        transform: translateX(-50%);
-        width: 20px; height: 2px;
-        background: var(--theme-accent);
-        border-radius: 2px;
-    }
-
-    /* ── EULA SCROLL BOX ── */
-    .eula-box {
-        background: var(--bg-input);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 12px 14px;
-        height: 120px;
-        overflow-y: auto;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-        line-height: 1.6;
-        color: var(--text-muted);
-    }
-
-    /* ── RIBBON STAT CARD ── */
-    .ribbon-stat {
-        text-align: center;
-        padding: 12px 8px;
-        transition: background 0.2s ease;
-        border-radius: 10px;
-    }
-    .ribbon-stat:hover { background: var(--theme-accent-dim); }
-
-    /* ── CAMERA ── */
-    .camera-square {
-        width: 100%; padding-top: 100%;
-        position: relative; overflow: hidden;
-        border-radius: 16px; background: #000;
-        border: 1px solid var(--border-color);
-    }
-    .camera-square video {
-        position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%,-50%);
-        width: auto; height: 100%;
-        min-width: 100%; min-height: 100%; object-fit: cover;
-    }
-    .finder {
-        position: absolute; top: 50%; left: 50%;
-        width: 70%; height: 70%;
-        transform: translate(-50%,-50%);
-        box-sizing: border-box; pointer-events: none;
-        border: 2px solid rgba(245, 158, 11, 0.6);
-        border-radius: 12px;
-        box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset,
-                    0 0 20px rgba(245, 158, 11, 0.2);
-    }
-
-    /* ── TABS ── */
-    .tab-content { display: none; }
-    .tab-content.active {
-        display: block;
-        animation: panelUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    /* ── MODAL ── */
-    .titan-modal-animate {
-        animation: bootFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    /* ── MANAGER LAYOUT ── */
-    #paveops-3d-viewport canvas {
-        width: 100% !important; height: 100% !important;
-        outline: none; border-radius: 14px;
-    }
-
-    /* ── PROJECT CARD ── */
-    .project-card {
-        background: var(--bg-input);
-        border: 1px solid var(--border-color);
-        border-radius: 18px;
-        padding: 24px;
-        position: relative;
-        overflow: hidden;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .project-card:hover {
-        border-color: rgba(245,158,11,0.25);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    }
-
-    /* ── THEME BUTTONS ── */
-    .theme-btn {
-        background: var(--bg-input);
-        border: 1px solid var(--border-color);
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .theme-btn:hover, .theme-btn.active {
-        border-color: var(--theme-accent);
-        color: var(--theme-accent);
-        background: var(--theme-accent-dim);
-    }
-
-    /* ── TICKER ANIMATION FOR SUBTITLE ── */
-    @keyframes ticker {
-        from { opacity: 0; transform: translateX(-6px); }
-        to   { opacity: 1; transform: translateX(0); }
-    }
-    .ticker-animate { animation: ticker 0.4s ease both; }
-
-    /* ── REDUCE MOTION ── */
-    @media (prefers-reduced-motion: reduce) {
-        *, .panel-enter, .panel-enter-delay-1,
-        .panel-enter-delay-2, .panel-enter-delay-3,
-        .boot-animate, .titan-btn::before { animation: none !important; }
-    }
-</style>
-</head>
-<body class="bg-themebg text-themetext antialiased selection:bg-themeaccent selection:text-themebtntext min-h-screen">
-<div class="scanline-overlay"></div>
-    
-    <div id="authGate" class="boot-animate max-w-sm mx-auto mt-16 relative">
-    <div class="titan-card p-8 relative overflow-hidden glow-border">
-        <div class="accent-line"></div>
+        .camera-square { width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 16px; background: #000; border: 1px solid var(--border-color); }
+        .camera-square video { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: auto; height: 100%; min-width: 100%; min-height: 100%; object-fit: cover; }
+        .finder { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%,-50%); box-sizing: border-box; pointer-events: none; border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset; }
         
-        <!-- Logo + Identity -->
-        <div class="text-center mb-8">
-            <img src="assets/client-logo.png" alt="PaveOps" class="h-20 mx-auto mb-5 rounded-xl shadow-lg" style="box-shadow: 0 0 30px rgba(245,158,11,0.15);">
-            <div class="flex items-center justify-center gap-2 mb-1">
-                <span class="status-dot"></span>
-                <span class="font-code text-[9px] uppercase tracking-[0.25em] text-amber-500 font-bold">System Online</span>
-            </div>
-            <h1 class="text-2xl font-black uppercase tracking-tight text-themetext mt-3">
-                Titan <span style="color: var(--theme-accent);">Core</span>
-            </h1>
-            <p class="font-code text-[9px] uppercase tracking-[0.2em] mt-1" style="color: var(--text-muted);">Pave Ops Infrastructure Engine</p>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .titan-modal-animate { animation: titanModalReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes titanModalReveal { from { opacity: 0; transform: scale(0.95) translateY(10px); filter: blur(4px); } to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } }
+
+        /* 3D Viewport Specific Fixes */
+        #paveops-3d-viewport canvas { width: 100% !important; height: 100% !important; outline: none; border-radius: 1rem; }
+    </style>
+</head>
+<body class="bg-themebg text-themetext p-4 md:p-8 antialiased selection:bg-themeaccent selection:text-themebtntext">
+
+    <div id="authGate" class="max-w-md mx-auto mt-20 bg-themepanel p-8 rounded-2xl border border-themeborder shadow-2xl text-center relative overflow-hidden flex flex-col items-center">
+    <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+    <img src="assets/client-logo.png" alt="Titan Core Engine Logo" class="h-40 mb-4 rounded-lg shadow-lg">
+    <h2 class="text-xl font-black uppercase tracking-wider text-themetext mb-2">Titan Core Engine</h2>
+    <p class="text-themeaccent mb-6 text-xs font-code uppercase tracking-widest font-bold">Pave Ops Infrastructure</p>
+    
+    <div class="w-full text-left space-y-4 mb-6">
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Corporate Email</label>
+            <input type="email" id="authEmail" placeholder="user@titancore.com" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+        </div>
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Password</label>
+            <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
         </div>
 
-        <!-- Fields -->
-        <div class="space-y-4 mb-5">
-            <div class="panel-enter">
-                <label class="block font-code text-[9px] uppercase tracking-[0.2em] mb-1.5" style="color: var(--text-muted);">Corporate Email</label>
-                <input type="email" id="authEmail" placeholder="user@titancore.com" class="titan-input">
+        <!-- EULA SCROLL BOX -->
+        <div class="mt-2">
+            <div class="p-3 bg-themeinput border border-themeborder rounded-lg text-[10px] text-thememuted h-32 overflow-y-auto font-code mb-3 shadow-inner">
+                <h4 class="font-black text-themeaccent mb-2 uppercase tracking-widest text-xs">TITAN DIGITAL PRODUCTIONS — SAAS PILOT AGREEMENT</h4>
+                <p class="mb-2"><strong class="text-themetext">Intellectual Property:</strong> The "PaveOps" software, including all underlying code, 3D architecture, algorithms, and spatial telemetry engines, is the exclusive proprietary intellectual property of Titan Digital Productions, a division of Titan Consolidated.</p>
+                <p class="mb-2"><strong class="text-themetext">Limited License:</strong> By logging into this portal, the User and their representing Corporate Entity acknowledge that they are being granted a limited, temporary, non-transferable, and revocable license to beta-test the software.</p>
+                <p class="mb-2"><strong class="text-themetext">No Transfer of Rights:</strong> The Corporate Entity utilizing this pilot program holds absolutely no claim, right, or ownership over the PaveOps software, its development, or its future commercialization.</p>
+                <p><strong class="text-themetext">Confidentiality:</strong> The metrics, interfaces, and capabilities of this system are trade secrets of Titan Digital Productions and may not be reverse-engineered, copied, or shared with competing software developers.</p>
             </div>
-            <div class="panel-enter-delay-1">
-                <label class="block font-code text-[9px] uppercase tracking-[0.2em] mb-1.5" style="color: var(--text-muted);">Access Code</label>
-                <input type="password" id="authPassword" placeholder="••••••••" class="titan-input">
-            </div>
-        </div>
-
-        <!-- EULA -->
-        <div class="panel-enter-delay-2 mb-5">
-            <div class="eula-box mb-3">
-                <p class="font-code font-black mb-2 uppercase tracking-widest" style="color: var(--theme-accent); font-size: 0.6rem;">Titan Digital Productions — SaaS Pilot Agreement</p>
-                <p class="mb-2"><strong style="color: var(--text-main);">Intellectual Property:</strong> The "PaveOps" software, including all underlying code, 3D architecture, algorithms, and spatial telemetry engines, is the exclusive proprietary intellectual property of Titan Digital Productions, a division of Titan Consolidated.</p>
-                <p class="mb-2"><strong style="color: var(--text-main);">Limited License:</strong> By logging into this portal, the User acknowledges a limited, temporary, non-transferable, and revocable license to beta-test the software.</p>
-                <p class="mb-2"><strong style="color: var(--text-main);">No Transfer of Rights:</strong> The Corporate Entity holds absolutely no claim, right, or ownership over the PaveOps software, its development, or future commercialization.</p>
-                <p><strong style="color: var(--text-main);">Confidentiality:</strong> Metrics, interfaces, and capabilities of this system are trade secrets and may not be reverse-engineered, copied, or shared.</p>
-            </div>
-            <div class="flex items-start gap-2.5">
-                <input id="eulaCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 cursor-pointer shrink-0" style="accent-color: var(--theme-accent);">
-                <label for="eulaCheckbox" class="text-xs cursor-pointer select-none leading-relaxed" style="color: var(--text-muted);">
-                    I agree to the <span style="color: var(--theme-accent); font-weight: 700;">End User License Agreement</span>
+            <div class="flex items-start gap-2">
+                <input id="eulaCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-themeaccent cursor-pointer shrink-0">
+                <label for="eulaCheckbox" class="text-xs text-gray-300 cursor-pointer select-none leading-relaxed">
+                    I have read and agree to the <span class="text-themeaccent font-bold">End User License Agreement (EULA)</span>.
                 </label>
             </div>
-            <p id="eulaError" class="font-code text-[9px] font-bold mt-2 hidden uppercase tracking-widest" style="color: var(--danger);">⚠ You must accept the EULA to proceed.</p>
+            <p id="eulaError" class="text-rose-500 text-[10px] font-bold mt-1.5 hidden uppercase tracking-widest">You must accept the EULA to proceed.</p>
         </div>
 
-        <!-- Sign In Button -->
-        <div class="panel-enter-delay-3">
-            <button id="loginBtn" class="titan-btn">
-                Initialize Session
-            </button>
-            <p id="authError" class="font-code text-[9px] mt-3 hidden uppercase tracking-widest text-center py-2 px-3 rounded-lg" style="color: var(--danger); background: var(--danger-dim); border: 1px solid rgba(239,68,68,0.2);">Invalid Credentials.</p>
-        </div>
+        <button id="loginBtn" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black tracking-widest uppercase py-4 px-4 rounded-xl shadow-lg transition-all">Sign In</button>
+        <p id="authError" class="text-rose-500 font-code text-xs mt-2 hidden uppercase tracking-wide bg-rose-950/20 py-2 px-3 rounded border border-rose-900/50">Invalid Credentials.</p>
     </div>
-
-    <!-- Version tag -->
-    <p class="text-center font-code mt-4" style="color: var(--text-muted); font-size: 0.6rem; letter-spacing: 0.15em;">TITAN CORE ENGINE v2.1 · PAVE OPS</p>
 </div>
 
-    <div class="mb-5 flex justify-between items-center pb-4 pt-2 panel-enter" style="border-bottom: 1px solid var(--border-color);">
-        <div class="flex items-center gap-2.5">
-            <span class="status-dot"></span>
+    <div id="appInterface" class="max-w-xl mx-auto hidden pb-24">
+        
+        <div class="mb-6 flex justify-between items-center border-b border-themeborder pb-4 pt-2">
             <div>
-                <h1 class="text-lg font-black uppercase tracking-tight" style="color: var(--text-main);">Pave<span style="color: var(--theme-accent);">Ops</span></h1>
-                <p id="reportSubtitle" class="font-code font-bold ticker-animate" style="font-size: 0.6rem; letter-spacing: 0.18em; color: var(--theme-accent);">SYNC ACTIVE</p>
+                <h1 class="text-xl font-extrabold uppercase tracking-tight text-themetext">Pave<span class="text-themeaccent">Ops</span></h1>
+                <p id="reportSubtitle" class="text-[11px] font-code text-themeaccent font-bold tracking-wider mt-0.5">Sync Active</p>
             </div>
+            <button id="signOutBtn" class="text-xs font-medium border border-themeborder rounded-xl px-3 py-1.5 bg-themeinput text-rose-500 hover:bg-rose-950/20 transition-colors">Sign out</button>
         </div>
-        <button id="signOutBtn" class="font-code text-[9px] uppercase tracking-widest px-3 py-2 rounded-lg cursor-pointer transition-all" style="border: 1px solid rgba(239,68,68,0.3); background: var(--danger-dim); color: var(--danger);" onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='var(--danger-dim)'">Sign Out</button>
-    </div>
 
-        <div id="titanAnalyticsRibbon" class="grid grid-cols-3 gap-2 mb-5 titan-card p-3 panel-enter">
-            <div class="ribbon-stat border-r" style="border-color: var(--border-color);">
-                <span class="font-code text-[9px] uppercase tracking-widest block mb-1" style="color: var(--text-muted);">Tickets</span>
-                <span id="count" class="text-2xl font-black font-code" style="color: var(--text-main);">0</span>
+        <div id="titanAnalyticsRibbon" class="grid grid-cols-3 gap-3 mb-6 bg-themepanel p-4 rounded-2xl border border-themeborder shadow-sm">
+            <div class="text-center border-r border-themeborder/60">
+                <span class="text-[10px] font-medium text-thememuted block">Tickets logged</span>
+                <span id="count" class="text-xl font-extrabold text-themetext font-code">0</span>
             </div>
-            <div class="ribbon-stat border-r" style="border-color: var(--border-color);">
-                <span class="font-code text-[9px] uppercase tracking-widest block mb-1" style="color: var(--text-muted);">Tonnage</span>
-                <span id="aggTotalTonnage" class="text-2xl font-black font-code" style="color: var(--text-main);">0.00<span class="text-xs ml-0.5" style="color: var(--text-muted);">t</span></span>
+            <div class="text-center border-r border-themeborder/60">
+                <span class="text-[10px] font-medium text-thememuted block">Total tonnage</span>
+                <span id="aggTotalTonnage" class="text-xl font-extrabold text-themetext font-code">0.00<span class="text-xs text-thememuted ml-0.5">t</span></span>
             </div>
-            <div class="ribbon-stat">
-                <span class="font-code text-[9px] uppercase tracking-widest block mb-1" style="color: var(--theme-accent);">Avg Thick.</span>
-                <span id="aggAvgThickness" class="text-2xl font-black font-code" style="color: var(--theme-accent);">0.0<span class="text-[10px] font-bold ml-0.5">mm</span></span>
+            <div class="text-center">
+                <span class="text-[10px] font-medium text-themeaccent block font-semibold">Avg thickness</span>
+                <span id="aggAvgThickness" class="text-xl font-extrabold text-themeaccent font-code">0.0<span class="text-[10px] font-bold ml-0.5">mm</span></span>
             </div>
         </div>
 
@@ -476,10 +181,7 @@
         <div id="tab-scan" class="tab-content active">
             <div class="bg-themepanel p-6 rounded-2xl border border-themeborder mb-6 shadow-xl">
                 <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Ticket Ingestion</h2>
-                <div id="status" class="font-code text-[9px] mb-5 text-center tracking-[0.2em] uppercase py-3 rounded-xl flex items-center justify-center gap-2" style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--theme-accent);">
-                    <span class="status-dot"></span>
-                    System idle — awaiting device instruction
-                </div>
+                <div id="status" class="text-xs font-code text-themeaccent mb-6 text-center tracking-widest bg-themeinput py-2.5 rounded-xl border border-themeborder">System idle — awaiting device instruction</div>
                 
                 <div class="camera-wrap hidden mb-6 max-w-sm mx-auto" id="cameraWrap">
                     <div class="camera-square" id="cameraSquare">
@@ -548,26 +250,22 @@
             </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 w-full z-40 p-3" style="background: var(--bg-panel); border-top: 1px solid var(--border-color); backdrop-filter: blur(12px);">
-    <div class="max-w-xl mx-auto grid grid-cols-4 gap-1">
-        <button class="nav-tab-btn flex flex-col items-center justify-center py-2.5 rounded-xl transition-all active-tab" data-target-tab="scan" style="color: var(--theme-accent); background: var(--theme-accent-dim);">
-            <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8H2a1 1 0 00-1 1v9a1 1 0 001 1h3m10-10h4a1 1 0 011 1v9a1 1 0 01-1 1h-4m-7-1a1 1 0 100 2 1 1 0 000-2z"/></svg>
-            <span class="font-code text-[8px] uppercase tracking-wider font-bold">Scan</span>
-        </button>
-        <button class="nav-tab-btn flex flex-col items-center justify-center py-2.5 rounded-xl transition-all" data-target-tab="shift" style="color: var(--text-muted);">
-            <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            <span class="font-code text-[8px] uppercase tracking-wider font-bold">Shift</span>
-        </button>
-        <button class="nav-tab-btn flex flex-col items-center justify-center py-2.5 rounded-xl transition-all" data-target-tab="export" style="color: var(--text-muted);">
-            <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span class="font-code text-[8px] uppercase tracking-wider font-bold">Export</span>
-        </button>
-        <button class="nav-tab-btn flex flex-col items-center justify-center py-2.5 rounded-xl transition-all" data-target-tab="settings" style="color: var(--text-muted);">
-            <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-            <span class="font-code text-[8px] uppercase tracking-wider font-bold">Config</span>
-        </button>
-    </div>
-</div>
+        <div class="fixed bottom-0 left-0 w-full bg-themepanel border-t border-themeborder p-2 z-40 shadow-xl">
+            <div class="max-w-xl mx-auto grid grid-cols-4 gap-1">
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-themeaccent font-bold" data-target-tab="scan">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Scan</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="shift">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Shift</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="export">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Export</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="settings">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Settings</span>
+                </button>
+            </div>
+        </div>
     </div>
     
     <div id="managerInterface" class="hidden h-screen w-full bg-themebg overflow-hidden absolute top-0 left-0 z-50">
@@ -1004,14 +702,12 @@
             btn.addEventListener('click', () => {
                 const targetTab = btn.dataset.targetTab;
                 tabBtns.forEach(b => {
-                    b.classList.remove('active-tab');
-                    b.style.color = 'var(--text-muted)';
-                    b.style.background = 'transparent';
+                    b.classList.remove('text-themeaccent', 'font-bold');
+                    b.classList.add('text-thememuted', 'font-medium');
                 });
                 tabs.forEach(t => t.classList.remove('active'));
-                btn.classList.add('active-tab');
-                btn.style.color = 'var(--theme-accent)';
-                btn.style.background = 'var(--theme-accent-dim)';
+                btn.classList.add('text-themeaccent', 'font-bold');
+                btn.classList.remove('text-thememuted', 'font-medium');
                 document.getElementById(`tab-${targetTab}`).classList.add('active');
             });
         });
@@ -1695,20 +1391,15 @@
 
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(e => console.warn(e)); }
         
-        function setStatus(txt, active = false) {
-            if (!status) return;
-            const dot = status.querySelector('.status-dot');
-            status.childNodes[status.childNodes.length - 1].textContent = ' ' + txt;
-            if (active) {
-                status.style.color = 'var(--theme-accent)';
-                status.style.borderColor = 'rgba(245,158,11,0.3)';
-                status.style.background = 'var(--theme-accent-dim)';
-                if (dot) dot.classList.remove('danger');
+        function setStatus(txt, active = false){ 
+            if(!status) return;
+            status.textContent = txt; 
+            if(active) {
+                status.classList.add('text-themeaccent'); 
+                status.classList.remove('text-themetext');
             } else {
-                status.style.color = 'var(--text-muted)';
-                status.style.borderColor = 'var(--border-color)';
-                status.style.background = 'var(--bg-input)';
-                if (dot) dot.classList.remove('danger');
+                status.classList.remove('text-themeaccent'); 
+                status.classList.add('text-themetext');
             }
         }
 
