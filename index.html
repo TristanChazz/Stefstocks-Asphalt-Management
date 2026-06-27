@@ -1426,29 +1426,23 @@
                  
                 if (!profile || error || !ROLE_TIERS[profile.role]) {
                     await supabase.auth.signOut();
-                    if (authError) {
                     authError.innerText = "Access denied: unrecognized role.";
                     authError.classList.remove('hidden');
-                    }
-                    if (authGate) authGate.classList.remove('hidden');
+                    authGate.classList.remove('hidden');
                     return;
                 }
                 const userTier = ROLE_TIERS[profile.role];
 
                 if (userTier === 1) {
-                    if (managerInterface) {
-                        managerInterface.classList.add('hidden');
-                        managerInterface.classList.remove('flex');
-                    }
-                    if (appInterface) appInterface.classList.remove('hidden');
+                    managerInterface.classList.add('hidden');
+                    managerInterface.classList.remove('flex');
+                    appInterface.classList.remove('hidden');
                     await loadForemanProjects();
                     renderLogs();
                 } else {
-                    if (appInterface) appInterface.classList.add('hidden');
-                    if (managerInterface) {
-                        managerInterface.classList.remove('hidden');
-                        managerInterface.classList.add('flex');
-                    }
+                    appInterface.classList.add('hidden');
+                    managerInterface.classList.remove('hidden');
+                    managerInterface.classList.add('flex');
                     
                     const prodTabBtn = document.querySelector('[data-target="production"]');
                     const finTabBtn = document.querySelector('[data-target="finance"]');
@@ -1478,17 +1472,18 @@
         }
 
         supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                if (authGate) authGate.classList.add('hidden');
+            if (session) { 
+                authGate.classList.add('hidden'); 
                 routeUserBasedOnRole(session.user.id);
-            } else {
-                if (appInterface) appInterface.classList.add('hidden');
-                if (managerInterface) {
+            } else { 
+                appInterface.classList.add('hidden'); 
+                if(managerInterface) {
                     managerInterface.classList.add('hidden');
-                    managerInterface.classList.remove('flex');
+                    managerInterface.classList.remove('flex'); 
                 }
-                if (authGate) authGate.classList.remove('hidden');
-                if (loginBtn) { loginBtn.innerText = "Sign In"; loginBtn.disabled = false; }
+                authGate.classList.remove('hidden'); 
+                loginBtn.innerText = "Sign In"; 
+                loginBtn.disabled = false;
             }
         });
 
