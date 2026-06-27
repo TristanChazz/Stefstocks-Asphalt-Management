@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Titan Core Engine | PaveOps</title>
+    <meta name="theme-color" content="#060a0e">
+    <link rel="manifest" href="manifest.json">
+
+    <script>
+        (function() {
+            const allowedDomains = ["titan-core-engine.vercel.app", "localhost", "127.0.0.1", "192.168", "10.0", "stefstocks-asphalt-management-beta.vercel.app"];
+            const currentDomain = window.location.hostname;
+            const isAllowed = allowedDomains.some(domain => currentDomain.includes(domain));
+            if (!isAllowed) {
+                window.stop();
+                document.documentElement.innerHTML = "<head><title>Access Denied</title></head><body style='background:#060a0e; color:#e11d48; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; margin:0; text-align:center; padding:20px;'><h1 style='font-weight:900; letter-spacing:2px; text-transform:uppercase;'>Security Breach:<br>Unauthorized Host</h1><p style='color:#f8fafc; margin-top:10px;'>This software is locked to Titan Core Engine infrastructure. Access Denied.</p></body>";
+                throw new Error("Security Override: Execution Halted.");
+            }
+        })();
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="libs/jsqr.min.js"></script>
+    <script src="libs/zxing.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        themebg: 'var(--bg-app)', themepanel: 'var(--bg-panel)', themeinput: 'var(--bg-input)',
+                        themeborder: 'var(--border-color)', themetext: 'var(--text-main)', thememuted: 'var(--text-muted)',
+                        themeaccent: 'var(--theme-accent)', themehover: 'var(--theme-accent-hover)',
+                        themebtntext: 'var(--btn-text)', themesec: 'var(--theme-secondary)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root, [data-theme="dark"] {
+            --bg-app: #060a0e; --bg-panel: #0c1219; --bg-input: #131c26;
+            --border-color: #1a2736; --text-main: #f0f4f8; --text-muted: #4a5e73;
+            --theme-accent: #10b981; --theme-accent-hover: #059669;
+            --theme-accent-glow: rgba(16,185,129,0.15); --theme-accent-glow-strong: rgba(16,185,129,0.35);
+            --btn-text: #ffffff; --theme-secondary: #060a0e;
+            --card-glass: rgba(12,18,25,0.7); --danger: #ef4444;
+        }
+        [data-theme="light"] {
+            --bg-app: #f0f4f8; --bg-panel: #ffffff; --bg-input: #e8edf2;
+            --border-color: #d1dbe6; --text-main: #0a1628; --text-muted: #6b7f94;
+            --theme-accent: #16a34a; --theme-accent-hover: #15803d;
+            --theme-accent-glow: rgba(22,163,74,0.1); --theme-accent-glow-strong: rgba(22,163,74,0.25);
+            --btn-text: #ffffff; --theme-secondary: #e8edf2;
+            --card-glass: rgba(255,255,255,0.8); --danger: #dc2626;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-app); color: var(--text-main); overflow-x: hidden; }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--theme-accent); border-radius: 10px; }
+        
+        #bgMesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.4; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+        
+        /* Modals & Glass */
+        .glass-panel { background: var(--card-glass); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); border: 1px solid var(--border-color); box-shadow: 0 4px 30px rgba(0,0,0,0.2); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, border-color 0.3s ease; }
+        .glass-panel:hover { border-color: rgba(16,185,129,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 30px -10px var(--theme-accent-glow); }
+        .tilt-card { transform-style: preserve-3d; transition: transform 0.15s ease-out; }
+        .tilt-card .tilt-inner { transform: translateZ(20px); }
+        .mag-btn { position: relative; overflow: hidden; transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease, background-color 0.2s ease; }
+        .mag-btn:active { transform: scale(0.97) !important; }
+        
+        /* Tabs & Display */
+        .tab-content, .manager-content-section { display: none; }
+        .tab-content.active, .manager-content-section.block { display: block; animation: tabReveal 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes tabReveal { from { opacity: 0; transform: translateY(12px) scale(0.99); filter: blur(4px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+        
+        /* App Specific */
+        .camera-square { width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 16px; background: #000; border: 1px solid var(--border-color); box-shadow: 0 0 40px -10px var(--theme-accent-glow); }
+        .camera-square video { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: auto; height: 100%; min-width: 100%; min-height: 100%; object-fit: cover; }
+        .finder { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%,-50%); box-sizing: border-box; pointer-events: none; border: 2px solid rgba(16,185,129,0.5); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset; }
+        .scan-line { position: absolute; left: 10%; width: 80%; height: 2px; background: linear-gradient(90deg, transparent, var(--theme-accent), transparent); box-shadow: 0 0 12px var(--theme-accent-glow-strong); animation: scanMove 2s ease-in-out infinite; z-index: 5; }
+        @keyframes scanMove { 0%,100% { top: 15%; } 50% { top: 85%; } }
+        
+        .modal-backdrop { background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .modal-panel { background: var(--card-glass); backdrop-filter: blur(40px) saturate(1.4); -webkit-backdrop-filter: blur(40px) saturate(1.4); border: 1px solid var(--border-color); box-shadow: 0 0 100px -20px var(--theme-accent-glow), 0 25px 60px -12px rgba(0,0,0,0.6); }
+        
+        #paveops-3d-viewport { background: var(--bg-app); border: 1px solid var(--border-color); box-shadow: 0 0 60px -15px var(--theme-accent-glow), inset 0 0 60px -20px rgba(0,0,0,0.5); }
+        #paveops-3d-viewport canvas { width: 100% !important; height: 100% !important; outline: none; border-radius: 1rem; }
+    </style>
+</head>
+<body class="bg-themebg text-themetext p-4 md:p-8 antialiased selection:bg-themeaccent selection:text-themebtntext min-h-screen relative">
+    <canvas id="bgMesh"></canvas>
+    <div class="noise-overlay"></div>
+
+    <div id="authGate" class="max-w-md mx-auto mt-20 p-8 rounded-2xl text-center relative overflow-hidden flex flex-col items-center glass-panel">
+        <img src="assets/client-logo.png" alt="Titan Core Engine Logo" class="h-40 mb-4 rounded-lg shadow-lg relative z-10">
+        <h2 class="text-xl font-black uppercase tracking-wider text-themetext mb-2">Titan Core Engine</h2>
+        <p class="text-themeaccent mb-6 text-xs font-code uppercase tracking-widest font-bold">Pave Ops Infrastructure</p>
+        
+        <div class="w-full text-left space-y-4 mb-6">
+            <div>
+                <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Corporate Email</label>
+                <input type="email" id="authEmail" placeholder="user@titancore.com" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code outline-none focus:border-themeaccent">
+            </div>
+            <div>
+                <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Password</label>
+                <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code outline-none focus:border-themeaccent">
+            </div>
+
+            <div class="mt-6 mb-6">
+                <div class="p-3 bg-themeinput border border-themeborder rounded-lg text-[10px] text-thememuted h-32 overflow-y-auto font-code mb-3 shadow-inner">
+                    <h4 class="font-black text-themeaccent mb-2 uppercase tracking-widest text-xs">TITAN DIGITAL PRODUCTIONS - SAAS PILOT AGREEMENT</h4>
+                    <p class="mb-2"><strong class="text-themetext">Intellectual Property:</strong> The "PaveOps" software, including all underlying code, 3D architecture, algorithms, and spatial telemetry engines, is the exclusive proprietary intellectual property of Titan Digital Productions, a division of Titan Consolidated.</p>
+                    <p class="mb-2"><strong class="text-themetext">Limited License:</strong> By logging into this portal, the User and their representing Corporate Entity acknowledge that they are being granted a limited, temporary, non-transferable, and revocable license to beta-test the software.</p>
+                    <p class="mb-2"><strong class="text-themetext">No Transfer of Rights:</strong> The Corporate Entity utilizing this pilot program holds absolutely no claim, right, or ownership over the PaveOps software, its development, or its future commercialization.</p>
+                    <p><strong class="text-themetext">Confidentiality:</strong> The metrics, interfaces, and capabilities of this system are trade secrets of Titan Digital Productions and may not be reverse-engineered, copied, or shared with competing software developers.</p>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex items-center h-5"><input id="eula-checkbox" type="checkbox" class="w-4 h-4 bg-themeinput border-themeborder rounded focus:ring-themeaccent cursor-pointer accent-themeaccent"></div>
+                    <label for="eula-checkbox" class="ml-2 text-xs font-medium text-gray-300 cursor-pointer select-none">I have read and agree to the <span class="text-themeaccent">End User License Agreement (EULA)</span>.</label>
+                </div>
+                <p id="eula-error" class="text-rose-500 text-[10px] font-bold mt-1 hidden uppercase tracking-widest">You must accept the EULA to proceed.</p>
+            </div>
+
+            <button id="loginBtn" class="mag-btn w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black tracking-widest uppercase py-4 px-4 rounded-xl shadow-lg">Sign In</button>
+            <p id="authError" class="text-rose-500 font-code text-xs mt-4 hidden uppercase tracking-wide bg-rose-950/20 py-2 px-3 rounded border border-rose-900/50">Invalid Credentials.</p>
+        </div>
+    </div>
+
+    <div id="appInterface" class="max-w-xl mx-auto hidden pb-24 relative z-10">
+        <div class="mb-6 flex justify-between items-center border-b border-themeborder pb-4 pt-2">
+            <div>
+                <h1 class="text-xl font-extrabold uppercase tracking-tight text-themetext">Pave<span class="text-themeaccent">Ops</span></h1>
+                <p id="reportSubtitle" class="text-[11px] font-code text-themeaccent font-bold tracking-wider mt-0.5">Sync Active</p>
+            </div>
+            <button id="signOutBtn" class="mag-btn text-xs font-medium border border-themeborder rounded-xl px-3 py-1.5 bg-themeinput text-rose-500 hover:bg-rose-950/20">Sign out</button>
+        </div>
+        
+        <div class="glass-panel p-4 rounded-2xl mb-6">
+            <label class="block text-[10px] font-semibold uppercase tracking-widest text-thememuted mb-2">Active Project Contract Site</label>
+            <select id="projectSiteSelector" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-medium text-sm outline-none font-bold"></select>
+            <div id="projectSpecAlert" class="mt-2 text-[10px] font-code uppercase tracking-wider text-thememuted hidden">Active Specification: <span id="specThickness" class="text-themeaccent font-bold">0</span>mm layer · Compliance Tolerance: ±<span id="specTolerance" class="text-themeaccent font-bold">0</span>mm window</div>
+        </div>
+
+        <div id="tab-scan" class="tab-content active">
+            <div class="glass-panel p-6 rounded-2xl mb-6">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Ticket Ingestion</h2>
+                <div id="status" class="text-xs font-code text-themeaccent mb-6 text-center tracking-widest bg-themeinput py-2.5 rounded-xl border border-themeborder">System idle — awaiting device instruction</div>
+                
+                <div class="camera-wrap hidden mb-6 max-w-sm mx-auto" id="cameraWrap">
+                    <div class="camera-square" id="cameraSquare">
+                        <video id="video" playsinline autoplay muted class="hidden"></video>
+                        <div class="finder"></div><div class="scan-line"></div>
+                    </div>
+                </div>
+                <canvas id="preview" class="hidden"></canvas>
+                
+                <div class="flex flex-col gap-3">
+                    <button type="button" id="openInApp" class="mag-btn w-full bg-themeaccent text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl shadow-lg">Initialize scanner</button>
+                    <button type="button" id="capture" class="hidden mag-btn w-full bg-themeaccent text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl">Extract note data</button>
+                    <button type="button" id="closeInApp" class="hidden mag-btn w-full bg-transparent border border-themeborder text-themetext py-3 rounded-xl">Abort scan</button>
+                    <button type="button" id="manualEntryBtn" class="mag-btn w-full bg-themeinput border border-themeborder text-themetext py-4 rounded-xl shadow-sm">Manual Ticket Entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="managerInterface" class="hidden h-screen w-full bg-themebg overflow-hidden absolute top-0 left-0 z-50">
+        <aside id="managerSidebar" class="w-64 glass-panel border-r border-themeborder flex flex-col justify-between shadow-2xl absolute inset-y-0 left-0 md:relative z-50">
+            <div class="p-6">
+                <h1 class="text-2xl font-black uppercase tracking-tight text-themetext mb-8">Pave<span class="text-themeaccent">Ops</span></h1>
+                <nav class="space-y-2">
+                    <button class="manager-nav-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-wider" data-target="overview">Yield Overview</button>
+                    <button class="manager-nav-btn w-full flex items-center gap-3 px-4 py-3 text-thememuted font-medium rounded-xl text-xs uppercase tracking-wider" data-target="projects">Project Management</button>
+                    <button class="manager-nav-btn w-full flex items-center gap-3 px-4 py-3 text-thememuted font-medium rounded-xl text-xs uppercase tracking-wider" data-target="logs">Pave Logs</button>
+                </nav>
+            </div>
+            <div class="p-6 border-t border-themeborder">
+                <button id="managerSignOutBtn" class="mag-btn w-full text-[10px] font-black border border-rose-900/50 rounded-xl px-4 py-4 bg-rose-950/20 text-rose-500 uppercase tracking-widest shadow-lg">Sign out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-10 w-full relative">
+            <header class="mb-8 flex justify-between items-end gap-4">
+                <div><h2 class="text-3xl font-black uppercase tracking-widest text-themetext">Executive Overview</h2></div>
+                <div class="px-4 py-2 rounded-lg text-xs font-code text-thememuted border border-themeborder bg-themeinput">Network: <span class="text-themeaccent font-bold">ONLINE</span></div>
+            </header>
+
+            <div id="manager-tab-overview" class="manager-content-section block">
+                <div class="p-2 rounded-2xl mb-6 relative w-full h-[450px] overflow-hidden" id="paveops-3d-viewport">
+                    </div>
+                <div id="managerDashboardGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toastContainer" class="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script src="js/ui-core.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data-engine.js"></script>
+    <script src="js/digital-twin.js"></script>
+
+</body>
+</html>

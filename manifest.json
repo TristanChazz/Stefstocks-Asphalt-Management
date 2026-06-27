@@ -1,0 +1,21 @@
+{
+  "short_name": "Titan Core",
+  "name": "Titan Core PaveOps Engine",
+  "icons": [
+    {
+      "src": "assets/client-logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "assets/client-logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#020c1b",
+  "theme_color": "#00377c",
+  "display": "standalone",
+  "orientation": "portrait"
+}
