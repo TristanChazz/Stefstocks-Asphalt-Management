@@ -1,0 +1,3066 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stefanutti Stocks Coastal | PaveOps</title>
+    <meta name="theme-color" content="#00377B">
+    <link rel="manifest" href="manifest.json">
+    
+    <script>
+        (function() {
+            const allowedDomains = ["stefstocks-asphalt-management-beta.vercel.app", "localhost", "127.0.0.1", "192.168", "10.0"];
+            const currentDomain = window.location.hostname;
+            const isAllowed = allowedDomains.some(domain => currentDomain.includes(domain));
+            if (!isAllowed) {
+                window.stop(); 
+                document.documentElement.innerHTML = "<head><title>Access Denied</title></head><body style='background:#00377B; color:#e11d48; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; margin:0; text-align:center; padding:20px;'><h1 style='font-weight:900; letter-spacing:2px; text-transform:uppercase;'>Security Breach:<br>Unauthorized Host</h1><p style='color:#f8fafc; margin-top:10px;'>This software is locked to authorized Stefanutti Stocks infrastructure. Access Denied.</p></body>";
+                throw new Error("Security Override: Execution Halted.");
+            }
+        })();
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        themebg: 'var(--bg-app)',
+                        themepanel: 'var(--bg-panel)',
+                        themeinput: 'var(--bg-input)',
+                        themeborder: 'var(--border-color)',
+                        themetext: 'var(--text-main)',
+                        thememuted: 'var(--text-muted)',
+                        themeaccent: 'var(--theme-accent)',
+                        themehover: 'var(--theme-accent-hover)',
+                        themebtntext: 'var(--btn-text)',
+                        themesec: 'var(--theme-secondary)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-app); color: var(--text-main); }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-app); }
+        ::-webkit-scrollbar-thumb { background: var(--theme-accent); border-radius: 10px; }
+
+        :root, [data-theme="dark"] {
+            --bg-app: #001a3a;          
+            --bg-panel: #002050;        
+            --bg-input: #00285e;        
+            --border-color: #003580;    
+            --text-main: #f8fafc;       
+            --text-muted: #8fabc8;      
+            --theme-accent: #FFCB05;    
+            --theme-accent-hover: #e6b600; 
+            --btn-text: #00377B;        
+            --theme-secondary: #001a3a;
+        }
+
+        [data-theme="light"] {
+            --bg-app: #f0f4f8;          
+            --bg-panel: #ffffff;        
+            --bg-input: #e8edf3;        
+            --border-color: #c8d6e5;    
+            --text-main: #00377B;       
+            --text-muted: #5a7a9a;      
+            --theme-accent: #FFCB05;    
+            --theme-accent-hover: #e6b600; 
+            --btn-text: #00377B;        
+            --theme-secondary: #e8edf3;
+        }
+
+        .camera-square { width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 16px; background: #000; border: 1px solid var(--border-color); }
+        .camera-square video { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: auto; height: 100%; min-width: 100%; min-height: 100%; object-fit: cover; }
+        .finder { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%,-50%); box-sizing: border-box; pointer-events: none; border: 2px solid rgba(255, 203, 5, 0.5); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-animate { animation: modalReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalReveal { from { opacity: 0; transform: scale(0.95) translateY(10px); filter: blur(4px); } to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } }
+
+        /* 3D Viewport Specific Fixes */
+        #paveops-3d-viewport canvas { width: 100% !important; height: 100% !important; outline: none; border-radius: 1rem; }
+    </style>
+</head>
+<body class="bg-themebg text-themetext p-4 md:p-8 antialiased selection:bg-themeaccent selection:text-themebtntext">
+
+    <div id="authGate" class="max-w-md mx-auto mt-20 bg-themepanel p-8 rounded-2xl border border-themeborder shadow-2xl text-center relative overflow-hidden flex flex-col items-center">
+    <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+    <img src="assets/client-logo.png" alt="Stefanutti Stocks Coastal Logo" class="h-40 mb-4 rounded-lg shadow-lg">
+    <h2 class="text-xl font-black uppercase tracking-wider text-themetext mb-2">Stefanutti Stocks Coastal</h2>
+    <p class="text-themeaccent mb-6 text-xs font-code uppercase tracking-widest font-bold">PaveOps Management Suite</p>
+    
+    <div class="w-full text-left space-y-4 mb-6">
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Corporate Email</label>
+            <input type="email" id="authEmail" placeholder="user@stefstocks.com" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+        </div>
+        <div>
+            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Password</label>
+            <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code focus:ring-2 focus:ring-themeaccent outline-none">
+        </div>
+
+
+
+        <button id="loginBtn" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black tracking-widest uppercase py-4 px-4 rounded-xl shadow-lg transition-all">Sign In</button>
+        <p id="authError" class="text-rose-500 font-code text-xs mt-2 hidden uppercase tracking-wide bg-rose-950/20 py-2 px-3 rounded border border-rose-900/50">Invalid Credentials.</p>
+    </div>
+</div>
+
+    <div id="appInterface" class="max-w-xl mx-auto hidden pb-24">
+        
+        <div class="mb-6 flex justify-between items-center border-b border-themeborder pb-4 pt-2">
+            <div>
+                <h1 class="text-xl font-extrabold uppercase tracking-tight text-themetext">Pave<span class="text-themeaccent">Ops</span></h1>
+                <p id="reportSubtitle" class="text-[11px] font-code text-themeaccent font-bold tracking-wider mt-0.5">Sync Active</p>
+            </div>
+            <button id="signOutBtn" class="text-xs font-medium border border-themeborder rounded-xl px-3 py-1.5 bg-themeinput text-rose-500 hover:bg-rose-950/20 transition-colors">Sign out</button>
+        </div>
+
+        <div id="analyticsRibbon" class="grid grid-cols-3 gap-3 mb-6 bg-themepanel p-4 rounded-2xl border border-themeborder shadow-sm">
+            <div class="text-center border-r border-themeborder/60">
+                <span class="text-[10px] font-medium text-thememuted block">Tickets logged</span>
+                <span id="count" class="text-xl font-extrabold text-themetext font-code">0</span>
+            </div>
+            <div class="text-center border-r border-themeborder/60">
+                <span class="text-[10px] font-medium text-thememuted block">Total tonnage</span>
+                <span id="aggTotalTonnage" class="text-xl font-extrabold text-themetext font-code">0.00<span class="text-xs text-thememuted ml-0.5">t</span></span>
+            </div>
+            <div class="text-center">
+                <span class="text-[10px] font-medium text-themeaccent block font-semibold">Avg thickness</span>
+                <span id="aggAvgThickness" class="text-xl font-extrabold text-themeaccent font-code">0.0<span class="text-[10px] font-bold ml-0.5">mm</span></span>
+            </div>
+        </div>
+
+        <div class="bg-themepanel p-4 rounded-2xl border border-themeborder mb-6 shadow-sm">
+            <label class="block text-[10px] font-semibold uppercase tracking-widest text-thememuted mb-2">Active Project Contract Site</label>
+            <select id="projectSiteSelector" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-medium text-sm focus:ring-2 focus:ring-themeaccent outline-none font-bold">
+            </select>
+            <div id="projectSpecAlert" class="mt-2 text-[10px] font-code uppercase tracking-wider text-thememuted hidden">
+                Active Specification: <span id="specThickness" class="text-themeaccent font-bold">0</span>mm layer · Compliance Tolerance: ±<span id="specTolerance" class="text-themeaccent font-bold">0</span>mm window
+            </div>
+        </div>
+
+        <div id="tab-scan" class="tab-content active">
+            <div class="bg-themepanel p-6 rounded-2xl border border-themeborder mb-6 shadow-xl">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Ticket Ingestion</h2>
+                <div id="status" class="text-xs font-code text-themeaccent mb-6 text-center tracking-widest bg-themeinput py-2.5 rounded-xl border border-themeborder">System idle — awaiting device instruction</div>
+                
+                <div class="camera-wrap hidden mb-6 max-w-sm mx-auto" id="cameraWrap">
+                    <div class="camera-square" id="cameraSquare">
+                        <video id="video" playsinline autoplay muted class="hidden"></video>
+                        <div class="finder"><span></span></div>
+                    </div>
+                </div>
+                <canvas id="preview" class="hidden"></canvas>
+                
+               <div class="flex flex-col gap-3">
+                    <button type="button" id="openInApp" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl shadow-lg transition-all">Initialize scanner</button>
+                    <button type="button" id="capture" class="hidden w-full bg-themeaccent hover:bg-themehover text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl transition-all">Extract note data</button>
+                    <button type="button" id="closeInApp" class="hidden w-full bg-transparent border border-themeborder text-themetext hover:bg-themeinput font-bold uppercase tracking-wider py-3 rounded-xl transition-all">Abort scan</button>
+                    <button type="button" id="manualEntryBtn" class="w-full bg-themeinput border border-themeborder text-themetext hover:border-themeaccent font-bold uppercase tracking-wider py-4 rounded-xl transition-all shadow-sm">Manual Ticket Entry</button>
+                </div>
+                <div class="mt-4 pt-4 border-t border-themeborder text-center">
+                    <button id="openNative" class="text-xs text-thememuted hover:text-themeaccent underline transition-colors">Or upload delivery ticket image</button>
+                </div>
+                <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden">
+            </div>
+        </div>
+
+        <div id="tab-shift" class="tab-content">
+            <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Shift Ledger</h2>
+                <div class="mb-4 p-4 bg-themeinput rounded-xl border border-themeborder hidden">
+                    <input type="number" id="globalDensity" value="2.40">
+                </div>
+                <div id="logList" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-export" class="tab-content">
+            <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Data Dissemination</h2>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-[10px] font-code uppercase tracking-widest text-thememuted block mb-1">Target dispatch date</label>
+                        <input id="exportDate" type="date" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm focus:ring-2 focus:ring-themeaccent outline-none">
+                    </div>
+                    <button id="downloadDate" class="w-full bg-themeaccent text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl shadow-lg transition-colors">Download shift CSV report</button>
+                    <div class="pt-4 border-t border-themeborder mt-2">
+                        <button id="clearAll" class="w-full bg-rose-950/20 border border-rose-900/50 text-rose-500 hover:bg-rose-900/40 font-bold uppercase tracking-wider py-3 rounded-xl text-xs transition-colors">Clear centralized ledger</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Configuration</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Default target BRD (t/m³)</label>
+                        <input type="number" id="settingsDensity" step="0.01" value="2.40" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themeaccent font-code text-base focus:ring-2 focus:ring-themeaccent outline-none text-center font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">UI Interface theme</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="theme-btn active p-3 text-xs font-code uppercase tracking-wider rounded-xl" data-target-theme="dark">Dark Mode</button>
+                            <button class="theme-btn p-3 text-xs font-code uppercase tracking-wider rounded-xl" data-target-theme="light">Light Mode</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 left-0 w-full bg-themepanel border-t border-themeborder p-2 z-40 shadow-xl">
+            <div class="max-w-xl mx-auto grid grid-cols-4 gap-1">
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-themeaccent font-bold" data-target-tab="scan">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Scan</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="shift">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Shift</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="export">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Export</span>
+                </button>
+                <button class="nav-tab-btn flex flex-col items-center justify-center py-2 text-thememuted font-medium" data-target-tab="settings">
+                    <span class="text-xs uppercase tracking-wider font-semibold">Settings</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="managerInterface" class="hidden h-screen w-full bg-themebg overflow-hidden absolute top-0 left-0 z-50">
+        
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+
+        <aside id="managerSidebar" class="w-64 bg-themepanel border-r border-themeborder flex flex-col justify-between shadow-2xl absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-50">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-2xl font-black uppercase tracking-tight text-themetext">Pave<span class="text-themeaccent">Ops</span> <span class="text-[10px] text-thememuted block mt-1 tracking-widest">Command Center</span></h1>
+                    <button id="closeSidebarBtn" class="md:hidden text-thememuted hover:text-rose-500 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <nav class="space-y-2">
+                    <button class="manager-nav-btn active w-full flex items-center gap-3 px-4 py-3 bg-themeinput border border-themeaccent/50 text-themeaccent font-bold rounded-xl text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(255,203,5,0.05)]" data-target="overview">
+                        Yield Overview
+                    </button>
+                    <button class="manager-nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-themeinput text-thememuted font-medium rounded-xl text-xs uppercase tracking-wider transition-colors" data-target="projects">
+                        Project Management
+                    </button>
+                    <button class="manager-nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-themeinput text-thememuted font-medium rounded-xl text-xs uppercase tracking-wider transition-colors" data-target="logs">
+                        Pave Logs
+                    </button>
+                    <button class="manager-nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-themeinput text-thememuted font-medium rounded-xl text-xs uppercase tracking-wider transition-colors" data-target="finance">
+                        Financials & Margins
+                    </button>
+                </nav>
+            </div>
+            <div class="p-6 border-t border-themeborder">
+                <button id="managerSignOutBtn" class="w-full text-[10px] font-black border border-rose-900/50 rounded-xl px-4 py-4 bg-rose-950/20 text-rose-500 hover:bg-rose-900/40 transition-colors uppercase tracking-widest shadow-lg">Sign out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-10 w-full relative">
+            <header class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+                <div class="flex items-center gap-4">
+                    <button id="mobileMenuBtn" class="md:hidden p-2.5 bg-themeinput border border-themeborder rounded-xl text-themetext hover:text-themeaccent transition-colors shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div>
+                        <h2 class="text-xl md:text-3xl font-black uppercase tracking-widest text-themetext">Executive Overview</h2>
+                        <p id="managerSubtitle" class="text-[10px] md:text-xs font-code text-themeaccent mt-1 md:mt-2 font-bold tracking-wider">Multi-site telemetry synchronized</p>
+                    </div>
+                </div>
+                <div class="bg-themepanel border border-themeborder px-4 py-2 rounded-lg text-[10px] md:text-xs font-code text-thememuted inline-block self-start md:self-auto">
+                    Network: <span class="text-themeaccent font-bold">ONLINE</span>
+                </div>
+            </header>
+
+            <div id="manager-tab-overview" class="manager-content-section block">
+                
+                <div class="mb-4 bg-themepanel p-4 rounded-2xl border border-themeborder shadow-sm">
+                    <label class="block text-[10px] font-semibold uppercase tracking-widest text-thememuted mb-2">Target Project for Digital Twin</label>
+                    <select id="digitalTwinProjectSelector" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-medium text-sm focus:ring-2 focus:ring-themeaccent outline-none font-bold">
+                    </select>
+                </div>
+
+                <div class="bg-themepanel p-2 rounded-2xl border border-themeborder shadow-2xl mb-6 relative w-full h-[450px] overflow-hidden" id="paveops-3d-viewport">
+                    
+                    <div id="dt-loader" class="absolute inset-0 z-20 bg-themebg/90 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500">
+                        <div class="w-12 h-12 border-4 border-themeinput border-t-themeaccent rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(255,203,5,0.2)]"></div>
+                        <p class="text-[10px] font-code text-themeaccent uppercase tracking-widest font-bold">Downloading 3D Assets...</p>
+                        <p id="dt-progress" class="text-[9px] text-thememuted font-code mt-2">0%</p>
+                    </div>
+
+                    <div id="dt-tooltip" class="absolute z-50 bg-[#0b0f14]/95 backdrop-blur-md border border-themeborder p-4 rounded-xl shadow-2xl pointer-events-none opacity-0 transition-opacity duration-200 min-w-[220px]" style="top: 0; left: 0;">
+                        </div>
+                    <div class="absolute top-4 right-4 z-10 bg-themebg/80 backdrop-blur-md border border-themeborder p-3 rounded-xl flex flex-col items-end shadow-lg pointer-events-auto">
+                        <span class="text-[8px] font-black uppercase text-themeaccent tracking-widest mb-2">Time-Lapse Scrubber</span>
+                        <input type="range" id="dt-scrubber" min="0" max="100" value="100" class="w-32 accent-themeaccent cursor-pointer bg-themeinput rounded-lg appearance-none h-1.5">
+                        <span id="dt-scrubber-label" class="text-[9px] text-thememuted font-code uppercase mt-2">Live (100%)</span>
+                    </div>
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-themebg/80 backdrop-blur-md border border-themeborder p-4 rounded-xl pointer-events-none shadow-lg">
+                        <h3 class="text-[10px] font-black uppercase text-themeaccent tracking-widest">Live Digital Twin</h3>
+                        <p class="text-[9px] text-thememuted font-code uppercase mt-1">Spatial Yield Analysis Active</p>
+                    </div>
+                    <div class="absolute bottom-4 left-4 z-10 bg-themebg/80 backdrop-blur-md border border-themeborder p-4 rounded-xl pointer-events-none flex gap-6 shadow-lg">
+                        <div>
+                            <span class="block text-[8px] text-thememuted uppercase tracking-widest font-bold">Total Target Area</span>
+                            <span id="dt-target" class="text-sm font-black text-themetext font-code">0 m²</span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] text-thememuted uppercase tracking-widest font-bold">Cumulative Paved</span>
+                            <span id="dt-paved" class="text-sm font-black text-themeaccent font-code">0 m²</span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] text-thememuted uppercase tracking-widest font-bold">Unpaved Balance</span>
+                            <span id="dt-remain" class="text-sm font-black text-rose-400 font-code">0 m²</span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] text-thememuted uppercase tracking-widest font-bold">Progress</span>
+                            <span id="dt-percent" class="text-sm font-black text-emerald-400 font-code">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="managerDashboardGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full bg-themepanel p-8 rounded-2xl border border-themeborder flex flex-col items-center justify-center h-64 shadow-xl">
+                        <div class="w-12 h-12 rounded-full border-4 border-themeinput border-t-themeaccent animate-spin mb-4"></div>
+                        <p class="text-thememuted text-xs font-code uppercase tracking-widest">Initializing Telemetry Engine...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manager-tab-projects" class="manager-content-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-black uppercase tracking-widest text-themetext">Jobsite Database</h2>
+                    <button id="toggleProjectFormBtn" class="bg-themeinput border border-themeborder hover:border-themeaccent transition-colors px-4 py-2 rounded-xl text-themeaccent font-bold text-xs uppercase tracking-widest shadow-sm">+ Create Site</button>
+                </div>
+
+                <div id="projectFormContainer" class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl mb-6 hidden transition-all">
+                    <h3 id="formTitle" class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Configure Jobsite Parameters</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">COTO 2020 Contract Basis</label>
+                        <select id="newProjectType" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                            <option value="new">New Construction / Structural (Yield Risk: Contractor)</option>
+                            <option value="rehab">Rehabilitation / Patching (Yield Risk: Client)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Site Name</label>
+                            <input type="text" id="newProjectName" placeholder="e.g. N3 Highway Overhaul" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Start Date</label>
+                            <input type="date" id="newProjectStart" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent font-bold mb-1">Contract Deadline</label>
+                            <input type="date" id="newProjectEnd" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-1 font-bold">Target Thickness (mm)</label>
+                            <input type="number" id="newThickness" placeholder="50" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-1 font-bold">Tolerance (±mm)</label>
+                            <input type="number" id="newTolerance" placeholder="2" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-1 font-bold">Average B.R.D (t/m³)</label>
+                            <input type="number" step="0.01" id="newProjectBRD" placeholder="2.40" value="2.40" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        </div>
+                    </div>
+
+                    <div id="configNew" class="grid grid-cols-1 gap-4 mb-6 pt-4 border-t border-themeborder/50">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-emerald-500 mb-1">Total Target Area (m²)</label>
+                            <input type="number" id="newArea" placeholder="15000" class="w-full bg-themebg border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <div id="configRehab" class="grid grid-cols-1 gap-4 mb-6 pt-4 border-t border-themeborder/50 hidden">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-emerald-500 mb-1">Total Cap (Tons)</label>
+                            <input type="number" id="rehabMaxTons" placeholder="5000" class="w-full bg-themebg border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button id="cancelEditBtn" class="hidden flex-1 bg-transparent border border-themeborder text-themetext hover:bg-themeinput font-bold uppercase tracking-wider py-4 rounded-xl transition-all">Cancel</button>
+                        <button id="saveProjectBtn" class="flex-[2] w-full bg-themeaccent hover:bg-themehover text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl shadow-lg transition-all">Deploy Site Parameters</button>
+                    </div>
+                </div>
+                
+                <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                    <h3 class="text-sm font-bold uppercase tracking-wider mb-4 text-themetext">Active Corporate Jobsites</h3>
+                    <div id="activeProjectsList" class="space-y-3">
+                        <p class="text-xs text-thememuted font-code uppercase tracking-widest">Loading sites from vault...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manager-tab-logs" class="manager-content-section hidden">
+                <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-themetext">Master Pave Ledger</h3>
+                    <div class="flex gap-2">
+                        <button id="pdfExportBtn" onclick="window.generateLedgerPDF()" class="bg-themeaccent text-themebtntext transition-colors px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest shadow-sm">Export PDF Report</button>
+                        <button class="bg-themeinput border border-themeborder hover:border-themeaccent transition-colors px-4 py-2 rounded-xl text-themeaccent font-bold text-xs uppercase tracking-widest">Generate Foreman Invite</button>
+                    </div>
+                </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr class="border-b border-themeborder text-[10px] font-code uppercase tracking-widest text-thememuted">
+                                    <th class="pb-3 pr-4 font-semibold">Date/Time</th>
+                                    <th class="pb-3 pr-4 font-semibold">Jobsite ID</th>
+                                    <th class="pb-3 pr-4 font-semibold">Truck Reg</th>
+                                    <th class="pb-3 pr-4 font-semibold">Mix Type</th>
+                                    <th class="pb-3 pr-4 font-semibold text-right">Tonnage</th>
+                                    <th class="pb-3 pr-4 font-semibold text-right">Thickness</th>
+                                    <th class="pb-3 font-semibold text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="masterLedgerBody" class="text-xs font-code text-themetext">
+                                <tr><td colspan="6" class="py-6 text-center text-thememuted uppercase tracking-widest">Synchronizing ledger...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manager-tab-finance" class="manager-content-section hidden">
+                <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-themeaccent/20 flex items-center justify-center text-themeaccent">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-themetext">Tier 4 Financials</h3>
+                            <p class="text-[10px] font-code text-themeaccent uppercase tracking-widest font-bold">Secure Revenue & Margin Parameters</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Select Active Project</label>
+                        <select id="financeProjectSelector" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                            <option value="">Select a project...</option>
+                        </select>
+                    </div>
+
+                    <div id="financeInputs" class="hidden border-t border-themeborder/50 pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label id="financeRevLabel" class="block text-[10px] font-code uppercase text-emerald-500 mb-1">Revenue / Unit (R)</label>
+                                <input type="number" id="financeRev" placeholder="0.00" class="w-full bg-themebg border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-code uppercase text-rose-500 mb-1">Material Cost per Ton (R)</label>
+                                <input type="number" id="financeCost" placeholder="0.00" class="w-full bg-themebg border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                            </div>
+                        </div>
+                        <button id="saveFinanceBtn" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-bold uppercase tracking-wider py-4 rounded-xl shadow-lg transition-all">Lock Financial Parameters</button>
+                    </div>
+                </div>
+            </div>
+        </main> 
+    </div> 
+
+    <div id="mathModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-themepanel border border-themeborder p-6 md:p-8 rounded-2xl max-w-sm w-full shadow-2xl max-h-[90vh] flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+            <h3 class="text-xl font-black uppercase tracking-widest text-themetext mb-6">COTO 2020 Engine</h3>
+            
+            <div class="flex flex-col gap-4 overflow-y-auto pr-2 pb-4">
+                <div class="bg-themeinput p-4 rounded-xl border border-themeborder grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-1 font-bold">Total Mass (Tonnes)</label>
+                        <input type="number" id="rawMassVal" step="0.01" placeholder="0.00" class="w-full bg-themebg border border-themeborder rounded p-3 text-themetext font-code text-xl font-black focus:border-themeaccent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Ticket Date</label>
+                        <input type="date" id="rawDateVal" class="w-full bg-themebg border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Ticket No.</label>
+                        <input type="text" id="rawTicketVal" placeholder="e.g. TKT-102" class="w-full bg-themebg border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Mix Type</label>
+                        <input type="text" id="rawMixVal" placeholder="e.g. BTB 50" class="w-full bg-themebg border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Supplier</label>
+                        <input type="text" id="rawCompanyVal" placeholder="Plant Name" class="w-full bg-themebg border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Truck Reg</label>
+                        <input type="text" id="rawRegVal" placeholder="License Plate" class="w-full bg-themebg border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <input type="hidden" id="rawCustomerVal">
+                </div>
+
+                <div class="bg-themebg border border-themeborder p-4 rounded-xl mt-2 space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-2 font-bold">Start paving at previous end chainage?</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="usePrevChainage" value="yes" checked> Yes
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="usePrevChainage" value="no"> No
+                            </label>
+                        </div>
+                    </div>
+                    <div id="startChainageContainer" class="hidden">
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Start Chainage (m)</label>
+                        <input type="number" id="startChainage" step="0.1" placeholder="e.g. 10400" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">End Chainage (m)</label>
+                        <input type="number" id="endChainage" step="0.1" placeholder="e.g. 10450" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Paved Width (m)</label>
+                        <input type="number" id="inputWidth" placeholder="e.g. 3.5" step="0.1" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Pave Temp (°C)</label>
+                        <input type="number" id="paveTemp" placeholder="145" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Pave Location</label>
+                        <select id="paveLocationSelect" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                            <option value="Slowlane">Slowlane</option>
+                            <option value="Fastlane">Fastlane</option>
+                            <option value="Shoulder">Shoulder</option>
+                            <option value="Other">Other (Specify)</option>
+                        </select>
+                    </div>
+                    <div id="otherLocationContainer" class="col-span-2 hidden">
+                        <input type="text" id="paveLocationOther" placeholder="Specify custom location..." class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                    </div>
+                </div>
+                
+                <div class="bg-themebg border border-themeborder p-4 rounded-xl mt-2 space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-2 font-bold">Are Cutbacks included in main dimensions?</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="cutbackInc" value="yes" checked> Yes
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="cutbackInc" value="no"> No (Add Separate)
+                            </label>
+                        </div>
+                    </div>
+                    <div id="cutbackDimensions" class="hidden grid grid-cols-2 gap-3 pt-2 border-t border-themeborder">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Cut Length (m)</label>
+                            <input type="number" id="cutLength" step="0.1" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Cut Width (m)</label>
+                            <input type="number" id="cutWidth" step="0.1" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-themeborder">
+                        <label class="block text-[10px] font-code uppercase tracking-widest text-themeaccent mb-2 font-bold">Was there any material wastage?</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="wastageOcc" value="no" checked> No
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-themetext">
+                                <input type="radio" name="wastageOcc" value="yes"> Yes
+                            </label>
+                        </div>
+                    </div>
+                    <div id="wastageDetails" class="hidden space-y-3 pt-2 border-t border-themeborder">
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-rose-500 mb-1">Wasted Mass (Tonnes)</label>
+                            <input type="number" id="wastedMass" step="0.1" class="w-full bg-themeinput border border-rose-900/50 rounded p-2 text-rose-500 font-code text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Reason / Comment</label>
+                            <input type="text" id="wastageReason" placeholder="e.g. Cold mix chunk layout reject" class="w-full bg-themeinput border border-themeborder rounded p-2 text-themetext font-code text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Target BRD (t/m³)</label>
+                    <input type="number" id="inputDensity" step="0.01" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themeaccent font-code text-base focus:ring-2 focus:ring-themeaccent outline-none font-bold">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-4 border-t border-themeborder">
+                <button id="cancelModalBtn" class="flex-1 bg-transparent border border-themeborder text-themetext py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-themeinput transition-colors">Discard</button>
+                <button id="calcAndSaveBtn" class="flex-1 bg-themeaccent text-themebtntext py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg transition-all">Log Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="voModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-themepanel border border-themeborder p-6 rounded-2xl max-w-sm w-full shadow-2xl flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+            <h3 class="text-lg font-black uppercase tracking-widest text-themetext mb-2">Log Variation Order</h3>
+            <p class="text-[10px] font-code text-themeaccent mb-6">Extend Scope & Deadline</p>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Additional Tonnage (t)</label>
+                    <input type="number" id="voTons" placeholder="0" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Approved Time Extension (Days)</label>
+                    <input type="number" id="voDays" placeholder="0" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">VO Reference / Description</label>
+                    <input type="text" id="voDesc" placeholder="e.g. VO-001 Extra turning lane" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelVoBtn" class="flex-1 border border-themeborder text-themetext py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-themeinput">Cancel</button>
+                <button id="saveVoBtn" class="flex-1 bg-themeaccent text-themebtntext py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">Lock VO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delayModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-themepanel border border-themeborder p-6 rounded-2xl max-w-sm w-full shadow-2xl flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
+            <h3 class="text-lg font-black uppercase tracking-widest text-themetext mb-2">Log Standing Time</h3>
+            <p class="text-[10px] font-code text-rose-500 mb-6">Record Contractual Delays</p>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Delay Liability Category</label>
+                    <select id="delayCategory" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                        <option value="client">Client Delay (Compensable, +Time)</option>
+                        <option value="weather">Weather/Act of God (Non-Compensable, +Time)</option>
+                        <option value="contractor">Contractor Fault (Non-Compensable, No Time)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Days Lost</label>
+                    <input type="number" id="delayDays" value="1" min="1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Delay Description</label>
+                    <input type="text" id="delayDesc" placeholder="e.g. Plant breakdown / Heavy Rain" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelDelayBtn" class="flex-1 border border-themeborder text-themetext py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-themeinput">Cancel</button>
+                <button id="saveDelayBtn" class="flex-1 bg-rose-600 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">Log Delay</button>
+            </div>
+        </div>
+    </div>
+    <div id="managerEditLogModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-themepanel border border-themeborder p-6 rounded-2xl max-w-sm w-full shadow-2xl flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+            <h3 class="text-lg font-black uppercase tracking-widest text-themetext mb-2">Override Pave Log</h3>
+            <p class="text-[10px] font-code text-thememuted mb-6">Adjust parameters to recalculate thickness</p>
+            
+            <input type="hidden" id="editLogId">
+            <div class="space-y-4 mb-6 max-h-[60vh] overflow-y-auto pr-2">
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Effective Mass (Tons)</label>
+                    <input type="number" id="editLogMass" step="0.01" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Start Chainage</label>
+                        <input type="number" id="editLogStartC" step="0.1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-code uppercase text-thememuted mb-1">End Chainage</label>
+                        <input type="number" id="editLogEndC" step="0.1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-thememuted mb-1">Paved Width (m)</label>
+                    <input type="number" id="editLogWidth" step="0.1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-code uppercase text-themeaccent font-bold mb-1">Target B.R.D. Override</label>
+                    <input type="number" id="editLogBrd" step="0.01" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm outline-none focus:border-themeaccent">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelEditLogBtn" class="flex-1 border border-themeborder text-themetext py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-themeinput">Cancel</button>
+                <button id="saveEditLogBtn" class="flex-1 bg-themeaccent text-themebtntext py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">Recalculate</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/jsqr.min.js"></script>
+    <script src="libs/zxing.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ 
+    <script>
+    (function(){
+        // ==========================================
+        // 1. THEME ENGINE
+        // ==========================================
+        const savedTheme = localStorage.getItem('ssPaveOpsTheme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        themeBtns.forEach(btn => {
+            if(btn.dataset.targetTheme === savedTheme) {
+                themeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', (e) => {
+                const target = e.target.dataset.targetTheme;
+                document.documentElement.setAttribute('data-theme', target);
+                localStorage.setItem('ssPaveOpsTheme', target);
+                themeBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        // ==========================================
+        // NAVIGATION SUBSYSTEM
+        // ==========================================
+        const tabBtns = document.querySelectorAll('.nav-tab-btn');
+        const tabs = document.querySelectorAll('.tab-content');
+        const manualEntryBtn = document.getElementById('manualEntryBtn');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.targetTab;
+                tabBtns.forEach(b => {
+                    b.classList.remove('text-themeaccent', 'font-bold');
+                    b.classList.add('text-thememuted', 'font-medium');
+                });
+                tabs.forEach(t => t.classList.remove('active'));
+                btn.classList.add('text-themeaccent', 'font-bold');
+                btn.classList.remove('text-thememuted', 'font-medium');
+                document.getElementById(`tab-${targetTab}`).classList.add('active');
+            });
+        });
+
+        const settingsDensity = document.getElementById('settingsDensity');
+        const globalDensity = document.getElementById('globalDensity');
+        if(settingsDensity) {
+            settingsDensity.addEventListener('input', (e) => {
+                if(globalDensity) {
+                    globalDensity.value = e.target.value;
+                    localStorage.setItem('tcPaveOpsBRD', e.target.value);
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. SUPABASE INITIALIZATION & AUTH
+        // ==========================================
+        const { createClient } = window.supabase;
+        const supabaseUrl = "https://kjyhaoeemhkvtidavppj.supabase.co"; 
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqeWhhb2VlbWhrdnRpZGF2cHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MzkyNDEsImV4cCI6MjA5NjAxNTI0MX0.LMnpfaTJc6yqWHb2wnNmisdCwh8yl6wbNJAGn99UACw"; 
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        window.supabaseClient = supabase; // <-- ADD THIS LINE
+        
+        let activeProjectContext = {
+            id: "site_01", name: "Rands Airport Runway", designThickness: 50.0, tolerance: 2.0, isActive: true
+        };
+        
+        // DOM Elements
+        const authGate = document.getElementById('authGate');
+        const appInterface = document.getElementById('appInterface');
+        const managerInterface = document.getElementById('managerInterface');
+        const managerSignOutBtn = document.getElementById('managerSignOutBtn');
+        const managerSidebar = document.getElementById('managerSidebar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const loginBtn = document.getElementById('loginBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const emailInput = document.getElementById('authEmail');
+        const passwordInput = document.getElementById('authPassword');
+        const authError = document.getElementById('authError');
+        
+        const video = document.getElementById('video'); 
+        const preview = document.getElementById('preview'); 
+        const status = document.getElementById('status');
+        const openInApp = document.getElementById('openInApp'); 
+        const closeInApp = document.getElementById('closeInApp'); 
+        const captureBtn = document.getElementById('capture');
+        const openNative = document.getElementById('openNative'); 
+        const cameraInput = document.getElementById('cameraInput');
+        const logList = document.getElementById('logList'); 
+        const countSpan = document.getElementById('count');
+        const cameraWrap = document.getElementById('cameraWrap'); 
+        
+        const mathModal = document.getElementById('mathModal'); 
+        const rawMassVal = document.getElementById('rawMassVal'); 
+        const rawTicketVal = document.getElementById('rawTicketVal'); 
+        const rawMixVal = document.getElementById('rawMixVal');
+        const rawCompanyVal = document.getElementById('rawCompanyVal'); 
+        const rawRegVal = document.getElementById('rawRegVal');
+        const rawDateVal = document.getElementById('rawDateVal');
+        const startChainage = document.getElementById('startChainage'); 
+        const endChainage = document.getElementById('endChainage'); 
+        const inputWidth = document.getElementById('inputWidth');
+        const inputDensity = document.getElementById('inputDensity');
+        const paveTemp = document.getElementById('paveTemp');
+        const paveLocationSelect = document.getElementById('paveLocationSelect');
+        const paveLocationOther = document.getElementById('paveLocationOther');
+        const startChainageContainer = document.getElementById('startChainageContainer');
+
+        // UI Event Listeners for new fields
+        document.querySelectorAll('input[name="usePrevChainage"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                startChainageContainer.classList.toggle('hidden', e.target.value === 'yes');
+            });
+        });
+
+        if(paveLocationSelect) {
+            paveLocationSelect.addEventListener('change', (e) => {
+                const otherContainer = document.getElementById('otherLocationContainer');
+                if(otherContainer) otherContainer.classList.toggle('hidden', e.target.value !== 'Other');
+            });
+        }
+        const calcAndSaveBtn = document.getElementById('calcAndSaveBtn'); 
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+
+        // ==========================================
+        // REALTIME TELEMETRY (THE DIGITAL TWIN HOOK)
+        // ==========================================
+        function igniteRealtimeTelemetry() {
+            if (window.realtimeActive) return;
+            window.realtimeActive = true;
+            console.log("Establishing secure WebSocket...");
+            
+            supabase.channel('live-telemetry-feed')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'pave_ops_logs' }, async (payload) => {
+                    console.log("LIVE DATA INBOUND: New Ticket Logged", payload);
+                    
+                    if (window.paverEngineActive) {
+                        await renderManagerDashboard();
+                        
+                        const subtitle = document.getElementById('managerSubtitle');
+                        if(subtitle) {
+                            const originalText = subtitle.innerText;
+                            subtitle.innerText = "YIELD UPDATE RECEIVED";
+                            subtitle.classList.remove('text-themeaccent');
+                            subtitle.classList.add('text-emerald-400');
+                            setTimeout(() => {
+                                subtitle.innerText = originalText;
+                                subtitle.classList.remove('text-emerald-400');
+                                subtitle.classList.add('text-themeaccent');
+                            }, 3000);
+                        }
+                    } else {
+                        console.warn("Payload received, but 3D Engine is not ready. Queueing update.");
+                    }
+                })
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') console.log("WebSocket Secure. Digital Twin is now live.");
+                });
+        }
+
+        // ==========================================
+        // 4. SCANNER, CAMERA & MANUAL ENTRY
+        // ==========================================
+        async function decodeCanvasOrBlob(source){
+            let canvas; if(source instanceof HTMLCanvasElement) canvas = source; else { const img = new Image(); canvas = await new Promise((res, rej)=>{ img.onload = ()=> { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').drawImage(img,0,0); URL.revokeObjectURL(img.src); res(c); }; img.onerror = rej; img.src = URL.createObjectURL(source); }); }
+            try { if(window.jsQR){ const ctx = canvas.getContext('2d'); const imgData = ctx.getImageData(0,0,canvas.width,canvas.height); const res = jsQR(imgData.data, imgData.width, imgData.height); if(res && res.data) return res.data; } } catch(e){}
+            try { const ReaderClass = window.ZXing?.BrowserQRCodeReader || window.BrowserMultiFormatReader; if(ReaderClass){ const reader = new ReaderClass(); const blob = await new Promise(r=> canvas.toBlob(r,'image/png')); const url = URL.createObjectURL(blob); const result = await reader.decodeFromImageUrl(url); URL.revokeObjectURL(url); if(result && result.text) return result.text; } } catch(e){} return null;
+        }
+
+        async function waitForVideoReady(v){ const start = Date.now(); while ((v.readyState < 2) && (Date.now() - start) < 3000) await new Promise(r=>setTimeout(r,100)); }
+
+        if(openInApp) openInApp.addEventListener('click', async ()=>{
+            try { video.srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal:'environment' } }, audio:false }); await waitForVideoReady(video); cameraWrap.classList.remove('hidden'); video.classList.remove('hidden'); closeInApp.classList.remove('hidden'); captureBtn.classList.remove('hidden'); openInApp.classList.add('hidden'); setStatus('ALIGN QR AND PRESS EXTRACT', true); } catch(e){ setStatus('CAMERA UNAVAILABLE', false); }
+        });
+        
+        if(closeInApp) closeInApp.addEventListener('click', ()=>{ if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); video.srcObject = null; cameraWrap.classList.add('hidden'); video.classList.add('hidden'); closeInApp.classList.add('hidden'); captureBtn.classList.add('hidden'); openInApp.classList.remove('hidden'); setStatus('SYSTEM IDLE', false); });
+        
+        if(captureBtn) captureBtn.addEventListener('click', async (e) => { 
+            e.preventDefault(); 
+            if(!video.srcObject) return; 
+            if (video.videoWidth === 0) return;
+            const side = Math.min(video.videoWidth, video.videoHeight); 
+            preview.width = 600; preview.height = 600; 
+            preview.getContext('2d').drawImage(video, (video.videoWidth - side)/2, (video.videoHeight - side)/2, side, side, 0, 0, 600, 600); 
+            setStatus('DECRYPTING...', true); 
+            const text = await decodeCanvasOrBlob(preview); 
+            if (text) { await handleDecodedText(text); } else { setStatus('SCAN FAILED. RETRY.', false); }
+        });
+
+        if(openNative) openNative.addEventListener('click', ()=> cameraInput.click());
+        if(cameraInput) cameraInput.addEventListener('change', async ev=>{ const f = ev.target.files && ev.target.files[0]; if(!f) return; setStatus('DECRYPTING TICKET...', true); const text = await decodeCanvasOrBlob(f); if(text) await handleDecodedText(text); else setStatus('SCAN FAILED. RETRY.', false); cameraInput.value = ''; });
+
+        if(manualEntryBtn) manualEntryBtn.addEventListener('click', () => {
+            if(video && video.srcObject) closeInApp.click(); 
+            setStatus('MANUAL ENTRY MODE', true);
+            mathModal.classList.remove('hidden');
+            if(mathModal.children[0]) mathModal.children[0].classList.add('modal-animate');
+            if(rawMassVal) rawMassVal.value = ""; if(rawTicketVal) rawTicketVal.value = ""; if(rawMixVal) rawMixVal.value = ""; 
+            if(rawCompanyVal) rawCompanyVal.value = ""; if(rawRegVal) rawRegVal.value = "";
+            if(rawDateVal) rawDateVal.value = new Date().toISOString().split('T')[0];
+        });
+
+        // --- MASTER COTO 2020 MATH ENGINE & SAVE LOGIC ---
+        if(calcAndSaveBtn) {
+            calcAndSaveBtn.addEventListener('click', async () => {
+                const totalMassTonnes = parseFloat(rawMassVal.value) || 0;
+                const width = parseFloat(inputWidth.value) || 0;
+                const brd = parseFloat(inputDensity.value) || 2.40;
+                const currentTicket = rawTicketVal.value.trim();
+                const temp = parseFloat(paveTemp.value) || 0;
+                
+                let location = paveLocationSelect.value;
+                if (location === 'Other') location = paveLocationOther.value.trim() || 'Unspecified';
+
+                // CHAINAGE LOGIC
+                const usePrev = document.querySelector('input[name="usePrevChainage"]:checked').value === 'yes';
+                let startC = 0;
+                let endC = parseFloat(endChainage.value) || 0;
+
+                if (usePrev) {
+                    const existingLogs = await idbGetAll();
+                    const projLogs = existingLogs.filter(l => l.project_id === activeProjectContext.id).sort((a,b)=> (b.t > a.t ? 1 : -1));
+                    startC = projLogs.length > 0 ? parseFloat(projLogs[0].endChainage || projLogs[0].startChainage || 0) : 0;
+                } else {
+                    startC = parseFloat(startChainage.value) || 0;
+                }
+
+                // Math.abs handles paving "backwards" (e.g., from chainage 10400 to 10300)
+                const length = Math.abs(endC - startC);
+
+                if (!totalMassTonnes) return alert("⚠️ System Halt: Tonnage mass is required.");
+
+                if (currentTicket && currentTicket !== "Unknown") {
+                    const existingLogs = await idbGetAll();
+                    const isDuplicate = existingLogs.some(log => log.truck === currentTicket);
+                    if (isDuplicate) return alert(`⚠️ SECURITY HALT: Ticket [${currentTicket}] is already logged in the ledger.`);
+                }
+
+                let totalArea = length * width;
+                const cutbackToggle = document.querySelector('input[name="cutbackInc"]:checked');
+                if (cutbackToggle && cutbackToggle.value === 'no') {
+                    const cl = parseFloat(document.getElementById('cutLength').value) || 0;
+                    const cw = parseFloat(document.getElementById('cutWidth').value) || 0;
+                    totalArea += (cl * cw);
+                }
+
+                let wastage = 0;
+                let wastageReasonText = "N/A";
+                const wastageToggle = document.querySelector('input[name="wastageOcc"]:checked');
+                if (wastageToggle && wastageToggle.value === 'yes') {
+                    wastage = parseFloat(document.getElementById('wastedMass').value) || 0;
+                    wastageReasonText = document.getElementById('wastageReason').value || "No reason provided";
+                }
+
+                const effectiveMass = totalMassTonnes - wastage;
+                const spreadRate = effectiveMass > 0 ? (totalArea / effectiveMass) : 0;
+                const calculatedThickness = (effectiveMass > 0 && totalArea > 0) ? ((effectiveMass * 1000) / (totalArea * brd)) : 0;
+
+                const entry = {
+                    id: uid(),
+                    t: new Date().toISOString(),
+                    ticket: currentTicket,
+                    truck: currentTicket,
+                    company: rawCompanyVal.value.trim() || "Unknown",
+                    registration: rawRegVal.value.trim() || "Unknown",
+                    mix: rawMixVal.value.trim() || "Unknown",
+                    material: rawMixVal.value.trim() || "Unknown", 
+                    tonnage: totalMassTonnes,
+                    wastageMass: wastage,
+                    effectiveMass: effectiveMass,
+                    startChainage: startC,
+                    endChainage: endC,
+                    paveTemp: temp,
+                    paveLocation: location,
+                    length: length,
+                    width: width,
+                    area: totalArea,
+                    spreadRate: spreadRate,
+                    density: brd,
+                    thickness: calculatedThickness,
+                    wastageReason: wastageReasonText,
+                    project_id: activeProjectContext.id,
+                    delivery_date: rawDateVal && rawDateVal.value ? rawDateVal.value : new Date().toISOString().split('T')[0]
+                };
+
+                mathModal.classList.add('hidden');
+                setStatus('COMMITTING TO VAULT...', true);
+                
+                await idbPut(entry);
+                await renderLogs();
+                setStatus('TICKET LOGGED SUCCESSFULLY', false);
+            });
+        }
+        
+        if (cancelModalBtn) cancelModalBtn.addEventListener('click', () => {
+            if(mathModal) mathModal.classList.add('hidden');
+            setStatus('ENTRY ABORTED. SYSTEM IDLE.', false);
+        });
+
+        // ==========================================
+        // HARDENED AUTHENTICATION ENGINE
+        // ==========================================
+        loginBtn.addEventListener('click', executeLogin);
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') executeLogin(); });
+
+        async function executeLogin() {
+    // INPUT VALIDATION
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if (!email || !password) return;
+
+    loginBtn.innerText = "AUTHENTICATING...";
+    loginBtn.disabled = true;
+    authError.classList.add('hidden');
+
+    // FORENSIC AUDIT — non-blocking, will never halt login if it fails
+    try {
+        let ipAddress = 'unknown';
+        try {
+            const ipRes = await Promise.race([
+                fetch('https://api.ipify.org?format=json'),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+            ]);
+            const ipData = await ipRes.json();
+            ipAddress = ipData.ip || 'unknown';
+        } catch (ipErr) {
+            console.warn("IP capture failed, continuing login:", ipErr);
+        }
+
+        await supabase.from('eula_audit_logs').insert([{
+            user_email: email,
+            ip_address: ipAddress,
+            user_agent: navigator.userAgent,
+            company_id: 'Stefanutti-Coastal'
+        }]);
+    } catch (auditErr) {
+        console.error("Audit log failed, login continues:", auditErr);
+    }
+
+    // CORE AUTHENTICATION
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            authError.innerText = error.message;
+            authError.classList.remove('hidden');
+            loginBtn.innerText = "Sign In";
+            loginBtn.disabled = false;
+            return;
+        }
+
+        if (data && data.user) {
+            authGate.classList.add('hidden');
+            await routeUserBasedOnRole(data.user.id);
+            loginBtn.innerText = "Sign In";
+            loginBtn.disabled = false;
+        }
+    } catch (err) {
+        authError.innerText = "Network failure. Please try again.";
+        authError.classList.remove('hidden');
+        loginBtn.innerText = "Sign In";
+        loginBtn.disabled = false;
+    }
+}
+
+        // ==========================================
+        // MASTER LOGOUT PROTOCOL (MEMORY FLUSH)
+        // ==========================================
+        async function executeSecureSignOut() {
+            try {
+                await supabase.auth.signOut();
+            } catch(e) { 
+                console.warn("Session termination error:", e); 
+            }
+            if(emailInput) emailInput.value = ''; 
+            if(passwordInput) passwordInput.value = ''; 
+            window.location.reload();
+        }
+
+        if(managerSignOutBtn) managerSignOutBtn.addEventListener('click', executeSecureSignOut);
+        if(signOutBtn) signOutBtn.addEventListener('click', executeSecureSignOut);
+
+        // ==========================================
+        // ROLE ROUTER & TELEMETRY ENGINE
+        // ==========================================
+        async function renderManagerDashboard() {
+            const grid = document.getElementById('managerDashboardGrid');
+            if(!grid) return;
+            
+            try {
+                const { data: projects, error: projErr } = await supabase.from('projects').select('*').eq('is_active', true);
+                const { data: logs, error: logErr } = await supabase.from('pave_ops_logs').select('*');
+                if (projErr || logErr) throw new Error("Data fetch failed");
+
+                let totalTons = 0;
+                let totalArea = 0;
+                let totalTargetArea = 0;
+
+                // MATH: Convert Rehab Tonnage to Target Area before drawing the Digital Twin map
+                (projects || []).forEach(p => {
+                    if (p.contract_type === 'rehab') {
+                        const maxTons = Number(p.max_tons) || 0;
+                        const brd = Number(p.target_brd) || 2.40;
+                        const thickM = (Number(p.design_thickness) || 50) / 1000;
+                        totalTargetArea += (thickM > 0 && brd > 0) ? (maxTons / (thickM * brd)) : 0;
+                    } else {
+                        totalTargetArea += Number(p.target_area || 0);
+                    }
+                });
+
+                (logs || []).forEach(log => {
+                    totalTons += Number(log.delivered_mass || 0);
+                    totalArea += Number(log.total_area || 0);
+                });
+
+                grid.innerHTML = `
+                    <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl transform transition hover:-translate-y-1">
+                        <h3 class="text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Aggregate Yield</h3>
+                        <p class="text-4xl font-black text-themetext font-code">${totalTons.toFixed(2)}<span class="text-sm text-thememuted ml-1">t</span></p>
+                    </div>
+                    <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl transform transition hover:-translate-y-1">
+                        <h3 class="text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Total Area Paved</h3>
+                        <p class="text-4xl font-black text-themeaccent font-code">${totalArea.toFixed(0)}<span class="text-sm font-bold ml-1">m²</span></p>
+                    </div>
+                    <div class="bg-themepanel p-6 rounded-2xl border border-themeborder shadow-xl transform transition hover:-translate-y-1">
+                        <h3 class="text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Tickets Processed</h3>
+                        <p class="text-4xl font-black text-themetext font-code">${(logs||[]).length}</p>
+                    </div>
+                `;
+
+                // Fire the trigger to advance the 3D Digital Twin
+                // --- SPATIAL DATA BRIDGE WITH PROJECT ISOLATION ---
+                const dtSelector = document.getElementById('digitalTwinProjectSelector');
+                let selectedProjId = null;
+
+                if (dtSelector) {
+                    // Bind the update event listener safely so it renders instantly on change
+                    if (!dtSelector.dataset.bound) {
+                        dtSelector.addEventListener('change', renderManagerDashboard);
+                        dtSelector.dataset.bound = "true";
+                    }
+
+                    // Preserve current selection during the DOM rebuild
+                    const currentSelection = dtSelector.value;
+                    dtSelector.innerHTML = ''; 
+
+                    (projects || []).forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.project_name;
+                        dtSelector.appendChild(opt);
+                    });
+
+                    // Restore selection or default to the first active project
+                    if (currentSelection && projects.find(p => p.id === currentSelection)) {
+                        dtSelector.value = currentSelection;
+                        selectedProjId = currentSelection;
+                    } else if (projects && projects.length > 0) {
+                        dtSelector.value = projects[0].id;
+                        selectedProjId = projects[0].id;
+                    }
+                }
+
+                if (window.updateDigitalTwin) {
+                    let twinArea = 0;
+                    let twinTargetArea = 0;
+                    let twinLogs = [];
+                    let specThick = 50; 
+                    let specTol = 2;
+
+                    const activeProj = (projects || []).find(p => p.id === selectedProjId);
+                    
+                    if (activeProj) {
+                        specThick = Number(activeProj.design_thickness) || 50;
+                        specTol = Number(activeProj.tolerance) || 2;
+
+                        // Recalculate target area strictly for the isolated project
+                        if (activeProj.contract_type === 'rehab') {
+                            const maxTons = Number(activeProj.max_tons) || 0;
+                            const brd = Number(activeProj.target_brd) || 2.40;
+                            twinTargetArea = (specThick > 0 && brd > 0) ? (maxTons / ((specThick / 1000) * brd)) : 0;
+                        } else {
+                            twinTargetArea = Number(activeProj.target_area || 0);
+                        }
+                    }
+
+                    if (selectedProjId) {
+                        // Filter logs strictly for the isolated project to prevent aggregate ghosting
+                        twinLogs = (logs || []).filter(l => l.project_id === selectedProjId);
+                        twinLogs.forEach(log => {
+                            twinArea += Number(log.total_area || log.area || 0);
+                        });
+                    }
+
+                    window.updateDigitalTwin(twinArea, twinTargetArea, twinLogs, specThick, specTol);
+                }
+
+            } catch (err) {
+                console.error("Telemetry failed:", err);
+                grid.innerHTML = `<div class="col-span-full text-rose-500 font-code text-xs text-center uppercase tracking-widest bg-rose-950/20 py-4 rounded-xl border border-rose-900/50">Connection to Telemetry Engine failed.</div>`;
+            }
+        }
+
+        const ROLE_TIERS = { 'foreman': 1, 'manager': 2, 'project_manager': 3, 'financial_manager': 4 };
+
+        async function renderMasterLedger() {
+            const tbody = document.getElementById('masterLedgerBody');
+            if (!tbody) return;
+            try {
+                const { data: logs, error } = await window.supabaseClient.from('pave_ops_logs').select('*').order('scanned_at', { ascending: false });
+                if (error) throw error;
+                if (!logs || logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-thememuted uppercase tracking-widest font-code text-xs">No records found.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = logs.map(row => {
+                    const ticketDate = row.delivery_date || new Date(row.scanned_at).toISOString().split('T')[0];
+                    return `
+                    <tr class="border-b border-themeborder/30 hover:bg-themeinput transition-colors">
+                        <td class="py-3 pr-4 font-bold text-themeaccent">${ticketDate}</td>
+                        <td class="py-3 pr-4 text-thememuted text-[10px] truncate max-w-[80px]">${row.project_id || 'N/A'}</td>
+                        <td class="py-3 pr-4 font-bold text-themetext">${row.vehicle_registration || 'Unknown'}</td>
+                        <td class="py-3 pr-4 text-thememuted">${row.mix_type || 'Unknown'}</td>
+                        <td class="py-3 pr-4 text-right font-black">${parseFloat(row.delivered_mass || 0).toFixed(2)}t</td>
+                        <td class="py-3 pr-4 text-right font-black text-themeaccent">${parseFloat(row.calculated_thickness || 0).toFixed(1)}mm</td>
+                        <td class="py-3 text-center">
+                            <button onclick="window.openManagerEditLog('${row.id}')" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded bg-themeinput border border-themeborder hover:text-themeaccent hover:border-themeaccent transition-colors">Edit</button>
+                        </td>
+                    </tr>`
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-rose-500 font-code text-xs uppercase tracking-widest">Failed to load ledger.</td></tr>`;
+            }
+        }
+        // ==========================================
+        // TIER 2 MANAGER LOG OVERRIDE & EDIT
+        // ==========================================
+        const managerEditLogModal = document.getElementById('managerEditLogModal');
+        
+        window.openManagerEditLog = async (logId) => {
+            try {
+                // Fetch the specific log entry
+                const { data, error } = await supabase.from('pave_ops_logs').select('*').eq('id', logId).single();
+                if (error || !data) throw error;
+
+                // Populate the modal fields
+                document.getElementById('editLogId').value = data.id;
+                document.getElementById('editLogMass').value = data.effective_mass || 0;
+                document.getElementById('editLogStartC').value = data.start_chainage || 0;
+                document.getElementById('editLogEndC').value = data.end_chainage || 0;
+                document.getElementById('editLogWidth').value = data.paved_width || 0;
+                document.getElementById('editLogBrd').value = data.target_brd || 2.40;
+
+                managerEditLogModal.classList.remove('hidden');
+            } catch(e) {
+                console.error(e);
+                alert("Failed to fetch log details for editing.");
+            }
+        };
+
+        // Modal close/save logic
+        document.getElementById('cancelEditLogBtn')?.addEventListener('click', () => managerEditLogModal.classList.add('hidden'));
+
+        document.getElementById('saveEditLogBtn')?.addEventListener('click', async () => {
+            const logId = document.getElementById('editLogId').value;
+            const mass = parseFloat(document.getElementById('editLogMass').value) || 0;
+            const startC = parseFloat(document.getElementById('editLogStartC').value) || 0;
+            const endC = parseFloat(document.getElementById('editLogEndC').value) || 0;
+            const width = parseFloat(document.getElementById('editLogWidth').value) || 0;
+            const brd = parseFloat(document.getElementById('editLogBrd').value) || 2.40;
+
+            // Recalculate using the Chainage Math Model
+            const length = Math.abs(endC - startC);
+            const area = length * width;
+            const thickness = (mass > 0 && area > 0) ? ((mass * 1000) / (area * brd)) : 0;
+            const spreadRate = mass > 0 ? (area / mass) : 0;
+
+            try {
+                const btn = document.getElementById('saveEditLogBtn');
+                btn.innerText = "Recalculating...";
+                btn.disabled = true;
+
+                const { error } = await supabase.from('pave_ops_logs').update({
+                    effective_mass: mass,
+                    paved_length: length,
+                    paved_width: width,
+                    total_area: area,
+                    target_brd: brd,
+                    calculated_thickness: thickness,
+                    spread_rate: spreadRate,
+                    start_chainage: startC,
+                    end_chainage: endC
+                }).eq('id', logId);
+
+                if (error) throw error;
+
+                managerEditLogModal.classList.add('hidden');
+                await renderMasterLedger(); // Refreshes the ledger view
+                alert("Log successfully updated and thickness recalculated.");
+
+            } catch(e) {
+                console.error(e);
+                alert("Failed to update the log.");
+            } finally {
+                const btn = document.getElementById('saveEditLogBtn');
+                btn.innerText = "Recalculate";
+                btn.disabled = false;
+            }
+        });
+        
+
+        async function routeUserBasedOnRole(userId) {
+            try {
+                const { data: profile, error } = await supabase.from('profiles').select('role').eq('id', userId).single();
+                 
+                if (!profile || error || !ROLE_TIERS[profile.role]) {
+                    await supabase.auth.signOut();
+                    authError.innerText = "Access denied: unrecognized role.";
+                    authError.classList.remove('hidden');
+                    authGate.classList.remove('hidden');
+                    return;
+                }
+                const userTier = ROLE_TIERS[profile.role];
+
+                if (userTier === 1) {
+                    managerInterface.classList.add('hidden');
+                    managerInterface.classList.remove('flex');
+                    appInterface.classList.remove('hidden');
+                    await loadForemanProjects();
+                    renderLogs();
+                } else {
+                    appInterface.classList.add('hidden');
+                    managerInterface.classList.remove('hidden');
+                    managerInterface.classList.add('flex');
+                    
+                    const prodTabBtn = document.querySelector('[data-target="production"]');
+                    const finTabBtn = document.querySelector('[data-target="finance"]');
+                    const setupTabBtn = document.querySelector('[data-target="projects"]');
+
+                    if (userTier < 3) {
+                        if (prodTabBtn) prodTabBtn.classList.add('hidden');
+                        if (finTabBtn) finTabBtn.classList.add('hidden');
+                        if (setupTabBtn) setupTabBtn.classList.add('hidden');
+                    }
+                    if (userTier < 4) {
+                        if (finTabBtn) finTabBtn.classList.add('hidden');
+                    }
+                    
+                    await renderManagerDashboard();
+                    await loadActiveProjects(); 
+                    await renderMasterLedger();
+                    
+                    // Boot up the 3D Engine and Realtime hook immediately upon manager entry
+                    window.initPaverDigitalTwin();
+                    igniteRealtimeTelemetry();
+                }
+            } catch (err) {
+                console.error("Routing error:", err);
+                alert("Critical Routing Error. Check console logs.");
+            }
+        }
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) { 
+                authGate.classList.add('hidden'); 
+                routeUserBasedOnRole(session.user.id);
+            } else { 
+                appInterface.classList.add('hidden'); 
+                if(managerInterface) {
+                    managerInterface.classList.add('hidden');
+                    managerInterface.classList.remove('flex'); 
+                }
+                authGate.classList.remove('hidden'); 
+                loginBtn.innerText = "Sign In"; 
+                loginBtn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // DYNAMIC TIER 1 JOBSITE SELECTOR
+        // ==========================================
+        const projectSiteSelector = document.getElementById('projectSiteSelector');
+        const specThicknessSpan = document.getElementById('specThickness');
+        const specToleranceSpan = document.getElementById('specTolerance');
+        const projectSpecAlert = document.getElementById('projectSpecAlert');
+
+        async function loadForemanProjects() {
+            if (!projectSiteSelector) return;
+            try {
+                const { data: projects, error } = await supabase.from('projects').select('*').eq('is_active', true).order('created_at', { ascending: false });
+                if (error) throw error;
+                
+                projectSiteSelector.innerHTML = ''; 
+                if (!projects || projects.length === 0) {
+                    projectSiteSelector.innerHTML = '<option value="">No Active Sites Found. Contact Manager.</option>';
+                    projectSpecAlert.classList.add('hidden');
+                    return;
+                }
+
+                projects.forEach((proj, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = proj.id; 
+                    opt.dataset.thickness = proj.design_thickness;
+                    opt.dataset.tolerance = proj.tolerance;
+                    opt.textContent = `${proj.project_name} (${proj.design_thickness}±${proj.tolerance}mm)`;
+                    projectSiteSelector.appendChild(opt);
+
+                    if (index === 0) {
+                        opt.selected = true;
+                        activeProjectContext.id = proj.id;
+                        activeProjectContext.name = proj.project_name;
+                        activeProjectContext.designThickness = parseFloat(proj.design_thickness);
+                        activeProjectContext.tolerance = parseFloat(proj.tolerance);
+                        
+                        if(specThicknessSpan) specThicknessSpan.textContent = proj.design_thickness;
+                        if(specToleranceSpan) specToleranceSpan.textContent = proj.tolerance;
+                        if(projectSpecAlert) projectSpecAlert.classList.remove('hidden');
+                    }
+                });
+            } catch (err) {
+                console.error("Foreman Sync Error:", err);
+                projectSiteSelector.innerHTML = '<option value="">Network Error. Retrying...</option>';
+            }
+        }
+
+        if(projectSiteSelector) {
+            projectSiteSelector.addEventListener('change', (e) => {
+                const selectedOption = e.target.options[e.target.selectedIndex];
+                if (!selectedOption.value) return;
+                activeProjectContext.id = e.target.value;
+                activeProjectContext.name = selectedOption.text.split('(')[0].trim();
+                activeProjectContext.designThickness = parseFloat(selectedOption.dataset.thickness);
+                activeProjectContext.tolerance = parseFloat(selectedOption.dataset.tolerance);
+                
+                if(specThicknessSpan) specThicknessSpan.textContent = activeProjectContext.designThickness;
+                if(specToleranceSpan) specToleranceSpan.textContent = activeProjectContext.tolerance;
+                if(projectSpecAlert) projectSpecAlert.classList.remove('hidden');
+                
+                renderLogs();
+            });
+        }
+
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
+
+        // ==========================================
+        // INDEXEDDB & OFFLINE ENGINE
+        // ==========================================
+        const OFFLINE_DB_NAME = 'PaveOpsOfflineDB';
+        const OFFLINE_STORE_NAME = 'sync_queue';
+
+        function initOfflineDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(OFFLINE_DB_NAME, 1);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) db.createObjectStore(OFFLINE_STORE_NAME, { keyPath: 'id' });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function saveToOfflineQueue(entry) {
+            const db = await initOfflineDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(OFFLINE_STORE_NAME, 'readwrite');
+                tx.objectStore(OFFLINE_STORE_NAME).put(entry);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function getOfflineQueue() {
+            const db = await initOfflineDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(OFFLINE_STORE_NAME, 'readonly');
+                const request = tx.objectStore(OFFLINE_STORE_NAME).getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function removeFromOfflineQueue(id) {
+            const db = await initOfflineDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(OFFLINE_STORE_NAME, 'readwrite');
+                tx.objectStore(OFFLINE_STORE_NAME).delete(id);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+        
+        async function idbPut(entry) {
+            try {
+                if (navigator.onLine) {
+                    const { data: { user }, error: userError } = await supabase.auth.getUser();
+                    if (userError || !user) throw new Error("Unauthorized session.");
+
+                    const rpcPayload = {
+                        p_ticket_number: String(entry.truck || entry.ticket),
+                        p_supplier_company: String(entry.company || "Unknown"),
+                        p_vehicle_registration: String(entry.registration || entry.truck),
+                        p_mix_type: String(entry.material || entry.mix),
+                        p_delivered_mass: Number(entry.tonnage || 0),
+                        p_wasted_mass: Number(entry.wastageMass || 0),
+                        p_effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
+                        p_paved_length: Number(entry.length || 0),
+                        p_paved_width: Number(entry.width || 0),
+                        p_total_area: Number(entry.area || 0),
+                        p_spread_rate: Number(entry.spreadRate || 0),
+                        p_target_brd: Number(entry.density || 0),
+                        p_calculated_thickness: Number(entry.thickness || 0),
+                        p_wastage_reason: String(entry.wastageReason || "N/A"),
+                        p_delivery_date: entry.delivery_date, 
+                        p_scanned_at: entry.t || new Date().toISOString(),
+                        p_project_id: entry.project_id
+                    };
+                    
+                    const { error: rpcError } = await supabase.rpc('log_scanned_ticket', rpcPayload);
+                    if (rpcError) throw rpcError;
+                } else {
+                    throw new Error("Device offline.");
+                }
+            } catch (err) {
+                entry.isPendingSync = true;
+                await saveToOfflineQueue(entry);
+            }
+        }
+
+        async function idbGetAll() { 
+            let cloudData = [];
+            if (navigator.onLine) {
+                try {
+                    const { data, error } = await supabase.from('pave_ops_logs').select('*'); 
+                    if (!error && data) {
+                        cloudData = data.map(row => ({
+                            id: row.id,
+                            t: row.scanned_at,
+                            ticket: row.ticket_number,
+                            truck: row.ticket_number,
+                            registration: row.vehicle_registration,
+                            company: row.supplier_company,
+                            mix: row.mix_type,
+                            material: row.mix_type,
+                            tonnage: row.delivered_mass,
+                            wastageMass: row.wasted_mass,
+                            effectiveMass: row.effective_mass,
+                            length: row.paved_length,
+                            width: row.paved_width,
+                            area: row.total_area,
+                            spreadRate: row.spread_rate,
+                            density: row.target_brd,
+                            thickness: row.calculated_thickness,
+                            wastageReason: row.wastage_reason,
+                            project_id: row.project_id,
+                            delivery_date: row.delivery_date
+                        }));
+                    }
+                } catch(e) { console.error("Sync failed for a queued ticket:", e); }
+            }
+            const localQueue = await getOfflineQueue();
+            return [...cloudData, ...localQueue];
+        }
+
+        async function idbDelete(id) { 
+            const { error } = await supabase.from('pave_ops_logs').delete().eq('id', id); 
+            if (error) { 
+                alert('Vault Error: Failed to delete record.'); 
+            }
+        }
+
+        document.querySelectorAll('input[name="cutbackInc"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const el = document.getElementById('cutbackDimensions');
+                if(el) el.classList.toggle('hidden', e.target.value === 'yes');
+            });
+        });
+        document.querySelectorAll('input[name="wastageOcc"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const el = document.getElementById('wastageDetails');
+                if(el) el.classList.toggle('hidden', e.target.value === 'no');
+            });
+        });
+
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(e => console.warn(e)); }
+        
+        function setStatus(txt, active = false){ 
+            if(!status) return;
+            status.textContent = txt; 
+            if(active) {
+                status.classList.add('text-themeaccent'); 
+                status.classList.remove('text-themetext');
+            } else {
+                status.classList.remove('text-themeaccent'); 
+                status.classList.add('text-themetext');
+            }
+        }
+
+        async function renderLogs(){
+            const allLogs = await idbGetAll(); 
+            // FILTER FIX: Only show logs for the active project
+            const logs = allLogs.filter(l => l.project_id === activeProjectContext.id);
+
+            if(logList) logList.innerHTML = ''; 
+            logs.sort((a,b)=> (b.t > a.t ? 1 : -1));
+
+            let totalTonnage = 0, totalArea = 0, combinedThickness = 0, validLogsCount = 0;
+
+            logs.forEach(l=>{
+                const card = document.createElement('div'); 
+                card.className = 'bg-themeinput p-4 rounded-xl border border-themeborder hover:border-themeaccent transition-colors text-sm shadow-sm';
+                let displayDate = l.delivery_date || new Date().toISOString().split('T')[0];
+                try {
+                    if (!l.delivery_date && l.t) {
+                        displayDate = new Date(l.t).toISOString().split('T')[0];
+                    }
+                } catch(dateErr) {
+                    displayDate = new Date().toISOString().split('T')[0]; // Default fallback if data is corrupt
+                }
+                
+                card.innerHTML = `
+                <div class="flex justify-between items-center border-b border-themeborder/50 pb-2 mb-3">
+                    <div class="font-code text-[10px] text-themeaccent tracking-widest uppercase font-bold">Ticket Date: ${displayDate}</div>
+                    <button class="danger del-btn font-bold text-[10px] uppercase px-2 py-1 bg-rose-950/20 text-rose-500 rounded border border-rose-900/50" data-id="${l.id}">DEL</button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-3 font-code text-xs text-themetext">
+                    <div><span class="text-thememuted">Co:</span> ${l.company || 'N/A'}</div>
+                    <div><span class="text-thememuted">Tkt:</span> ${l.truck || 'N/A'}</div>
+                    <div class="col-span-2 bg-themepanel/30 p-2 rounded border border-themeborder/30 mt-1">
+                        <span class="text-thememuted uppercase text-[9px] block tracking-wider font-bold">Mix Type</span>
+                        <span class="text-themeaccent font-bold">${l.material || 'Unknown Mix'}</span>
+                    </div>
+                </div>
+                <div class="bg-themepanel p-3 rounded-lg border border-themeborder grid grid-cols-3 gap-2 items-center text-center font-code text-xs text-themetext">
+                    <div class="border-r border-themeborder/60 text-left pl-1">
+                        <span class="text-thememuted text-[9px] uppercase block">Eff. Tons</span>
+                        <span class="font-black text-sm">${parseFloat(l.effectiveMass || l.tonnage || 0).toFixed(2)}t</span>
+                    </div>
+                    <div class="border-r border-themeborder/60 text-left pl-2">
+                        <span class="text-thememuted text-[9px] uppercase block">Spread Rate</span>
+                        <span class="font-black text-sm">${parseFloat(l.spreadRate || 0).toFixed(2)} m²/t</span>
+                    </div>
+                    <div class="text-right pr-1">
+                        <span class="text-themeaccent text-[9px] uppercase block font-bold">Paved Thick.</span>
+                        <span class="font-black text-themeaccent text-lg">${parseFloat(l.thickness || 0).toFixed(1)} mm</span>
+                    </div>
+                </div>`;
+                card.querySelector('.del-btn').onclick = async ()=> { 
+                    if(confirm(`Delete ticket ${l.truck}?`)) { await idbDelete(l.id); await renderLogs(); }
+                };
+                if(logList) logList.appendChild(card);
+
+                if(l.project_id === activeProjectContext.id || !l.project_id) { 
+                    totalTonnage += parseFloat(l.tonnage || 0);
+                    totalArea += parseFloat(l.area || 0);
+                    combinedThickness += parseFloat(l.thickness || 0);
+                    validLogsCount++;
+                }
+            });
+
+            const countEl = document.getElementById('count');
+            const aggTotalTonnageEl = document.getElementById('aggTotalTonnage');
+            const aggTotalAreaEl = document.getElementById('aggTotalArea');
+            const avgThickEl = document.getElementById('aggAvgThickness');
+
+            if(countEl) countEl.textContent = validLogsCount;
+            if(aggTotalTonnageEl) aggTotalTonnageEl.innerHTML = `${totalTonnage.toFixed(2)}<span class="text-xs text-thememuted ml-0.5">t</span>`;
+            if(aggTotalAreaEl) aggTotalAreaEl.innerHTML = `${totalArea.toFixed(0)}<span class="text-xs text-thememuted ml-0.5">m²</span>`;
+
+            const avgThickness = validLogsCount > 0 ? (combinedThickness / validLogsCount) : 0;
+
+            if(avgThickEl) {
+                avgThickEl.innerHTML = `${avgThickness.toFixed(1)}<span class="text-[10px] font-bold ml-0.5">mm</span>`;
+                const complianceBox = avgThickEl.parentElement;
+                if (validLogsCount > 0) {
+                    const minL = activeProjectContext.designThickness - activeProjectContext.tolerance;
+                    const maxL = activeProjectContext.designThickness + activeProjectContext.tolerance;
+                    if (avgThickness >= minL && avgThickness <= maxL) {
+                        complianceBox.className = "text-center bg-themeinput border border-emerald-500/30 rounded-xl p-3 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.1)]";
+                        avgThickEl.className = "text-xl font-extrabold text-emerald-500 font-code";
+                        avgThickEl.previousElementSibling.className = "text-[10px] font-medium text-emerald-500 block font-semibold uppercase tracking-wider";
+                    } else {
+                        complianceBox.className = "text-center bg-themeinput border border-rose-500/50 rounded-xl p-3 transition-colors shadow-[0_0_15px_rgba(225,29,72,0.15)]";
+                        avgThickEl.className = "text-xl font-extrabold text-rose-500 font-code";
+                        avgThickEl.previousElementSibling.className = "text-[10px] font-medium text-rose-500 block font-semibold uppercase tracking-wider";
+                    }
+                } else {
+                    complianceBox.className = "text-center border-themeborder bg-themeinput rounded-xl p-3";
+                    avgThickEl.className = "text-xl font-extrabold text-themeaccent font-code";
+                    avgThickEl.previousElementSibling.className = "text-[10px] font-medium text-themeaccent block font-semibold uppercase tracking-wider";
+                }
+            }
+        } 
+
+        function parseDecoded(text){
+            const s = (text||'').trim().replace(/\n|\r/g, ' ').replace(/\s{2,}/g, ' '); 
+            let parsed = { time: new Date().toISOString(), company: 'Unknown', customer: 'Unknown', material: 'Unknown Mix', truck: 'Unknown', registration: 'Unknown', tonnage: 0, raw: s };
+            const getVal = (keywords) => {
+                const regexStr = `(?:${keywords})\\s*[:\\-]?\\s*(.+?)(?=\\s*(?:Company|Co|Customer|Client|DeliveryNote|Ticket|Tkt|Product|Material|Mix|Net|Mass|Weight|Registration|Reg|Despatched|DateTime|Date|Time|Plant|Job|Cartage by|Location|BC|Temp|Order|Tare|Gross|EPC)\\s*[:\\-]|$)`;
+                const match = s.match(new RegExp(regexStr, 'i')); return match ? match[1].trim() : null;
+            };
+            parsed.company = getVal('Company|Co') || 'Unknown'; parsed.customer = getVal('Customer|Client') || 'Unknown';
+            parsed.truck = getVal('DeliveryNote|Ticket|Tkt|Note') || 'Unknown'; parsed.material = getVal('Product|Material|Mix') || 'Unknown';
+            parsed.registration = getVal('Registration|Reg|Vehicle') || 'Unknown';
+            let rawMass = getVal('Net\\s*Mass|Net|Mass|Weight');
+            if (!rawMass) { const fallback = s.match(/(?:Net|Mass|Weight)[^\d]*([\d.]+)/i); rawMass = fallback ? fallback[1] : "0"; }
+            parsed.tonnage = parseFloat(rawMass.replace(/[^\d.]/g, '')) || 0;
+            return parsed;
+        }
+
+        async function handleDecodedText(decodedText) {
+            let extractedDate = new Date().toISOString().split('T')[0]; 
+            const dateMatch = decodedText.match(/(?:Date|DateTime|Date\/Time|Despatched)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{4}[\/\-]\d{2}[\/\-]\d{2})/i);
+            if (dateMatch && dateMatch[1]) {
+                let rawDate = dateMatch[1].replace(/-/g, '/');
+                let parts = rawDate.split('/');
+                if (parts[0].length === 4) extractedDate = `${parts[0]}-${parts[1]}-${parts[2]}`;
+                else extractedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+
+            const parsed = parseDecoded(decodedText); 
+            if(video && video.srcObject) closeInApp.click();
+            
+            if(rawMassVal) rawMassVal.value = parsed.tonnage > 0 ? parsed.tonnage : ""; 
+            if(rawTicketVal) rawTicketVal.value = parsed.truck === "Unknown" ? "" : parsed.truck; 
+            if(rawMixVal) rawMixVal.value = parsed.material === "Unknown Mix" ? "" : parsed.material; 
+            if(rawCompanyVal) rawCompanyVal.value = parsed.company === "Unknown" ? "" : parsed.company; 
+            if(rawRegVal) rawRegVal.value = parsed.registration === "Unknown" ? "" : parsed.registration;
+            if(inputWidth) inputWidth.value = ''; 
+            if(rawDateVal) rawDateVal.value = extractedDate;
+            
+            const r1 = document.querySelector('input[name="cutbackInc"][value="yes"]');
+            if(r1) r1.checked = true;
+            const r2 = document.querySelector('input[name="wastageOcc"][value="no"]');
+            if(r2) r2.checked = true;
+            
+            const cDim = document.getElementById('cutbackDimensions');
+            if(cDim) cDim.classList.add('hidden'); 
+            const wDet = document.getElementById('wastageDetails');
+            if(wDet) wDet.classList.add('hidden');
+            
+            if(inputDensity && globalDensity) inputDensity.value = globalDensity.value; 
+            if(mathModal) {
+                mathModal.classList.remove('hidden');
+                if(mathModal.children[0]) mathModal.children[0].classList.add('modal-animate');
+            }
+            setStatus('SYSTEM READY. INPUT DIMENSIONS.', true);
+        }
+
+        async function flushOfflineQueue() {
+            if (!navigator.onLine) return;
+            const queue = await getOfflineQueue();
+            if (queue.length === 0) return;
+            
+            setStatus(`SYNCING ${queue.length} QUEUED TICKETS...`, true);
+            for (const entry of queue) {
+                try {
+                    const rpcPayload = {
+                        p_ticket_number: String(entry.truck || entry.ticket),
+                        p_supplier_company: String(entry.company || "Unknown"),
+                        p_vehicle_registration: String(entry.registration || entry.truck),
+                        p_mix_type: String(entry.material || entry.mix),
+                        p_delivered_mass: Number(entry.tonnage || 0),
+                        p_wasted_mass: Number(entry.wastageMass || 0),
+                        p_effective_mass: Number(entry.effectiveMass || entry.tonnage || 0),
+                        p_paved_length: Number(entry.length || 0),
+                        p_paved_width: Number(entry.width || 0),
+                        p_total_area: Number(entry.area || 0),
+                        p_spread_rate: Number(entry.spreadRate || 0),
+                        p_target_brd: Number(entry.density || 0),
+                        p_calculated_thickness: Number(entry.thickness || 0),
+                        p_wastage_reason: String(entry.wastageReason || "N/A"),
+                        p_delivery_date: entry.delivery_date, 
+                        p_scanned_at: entry.t || new Date().toISOString(),
+                        p_project_id: entry.project_id
+                    };
+                    const { error } = await supabase.rpc('log_scanned_ticket', rpcPayload);
+                    if (!error) await removeFromOfflineQueue(entry.id);
+                } catch(e) { console.error("Sync failed for a queued ticket:", e); }
+            }
+            setStatus(`SYSTEM SYNCED & READY`, false);
+            await renderLogs();
+        }
+
+        window.addEventListener('online', flushOfflineQueue);
+        setTimeout(flushOfflineQueue, 2000);
+
+        function toggleSidebar(forceClose = false) {
+            if(!managerSidebar || !sidebarOverlay) return;
+            if (forceClose || !managerSidebar.classList.contains('-translate-x-full')) {
+                managerSidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            } else {
+                managerSidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+        }
+
+        const managerNavBtns = document.querySelectorAll('.manager-nav-btn');
+        const managerSections = document.querySelectorAll('.manager-content-section');
+
+        managerNavBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                managerNavBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-themeinput', 'border-themeaccent/50', 'text-themeaccent', 'shadow-[0_0_15px_rgba(255,203,5,0.05)]');
+                    b.classList.add('text-thememuted', 'hover:bg-themeinput', 'border-transparent');
+                });
+                
+                btn.classList.add('active', 'bg-themeinput', 'border-themeaccent/50', 'text-themeaccent', 'shadow-[0_0_15px_rgba(255,203,5,0.05)]');
+                btn.classList.remove('text-thememuted', 'border-transparent');
+
+                managerSections.forEach(sec => sec.classList.add('hidden'));
+                const targetId = `manager-tab-${btn.dataset.target}`;
+                const targetEl = document.getElementById(targetId);
+                if(targetEl) targetEl.classList.remove('hidden');
+                
+                toggleSidebar(true);
+            });
+        });
+
+        const newProjectType = document.getElementById('newProjectType');
+        const configNew = document.getElementById('configNew');
+        const configRehab = document.getElementById('configRehab');
+
+        if (newProjectType) {
+            newProjectType.addEventListener('change', (e) => {
+                if (e.target.value === 'new') {
+                    if(configNew) configNew.classList.remove('hidden');
+                    if(configRehab) configRehab.classList.add('hidden');
+                } else {
+                    if(configNew) configNew.classList.add('hidden');
+                    if(configRehab) configRehab.classList.remove('hidden');
+                }
+            });
+        }
+
+        const saveProjectBtn = document.getElementById('saveProjectBtn');
+        const activeProjectsList = document.getElementById('activeProjectsList');
+
+        // ==========================================
+        // CREATE & UPDATE PROJECTS
+        // ==========================================
+        let editingProjectId = null;
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const toggleFormBtn = document.getElementById('toggleProjectFormBtn');
+        const formContainer = document.getElementById('projectFormContainer');
+
+        if (toggleFormBtn) {
+            toggleFormBtn.addEventListener('click', () => {
+                if(formContainer) formContainer.classList.toggle('hidden');
+                if (formContainer && formContainer.classList.contains('hidden')) {
+                    toggleFormBtn.innerText = "+ Create Site";
+                } else {
+                    toggleFormBtn.innerText = "- Close Menu";
+                }
+            });
+        }
+
+        if (cancelEditBtn) {
+            cancelEditBtn.addEventListener('click', () => {
+                editingProjectId = null;
+                document.getElementById('newProjectName').value = '';
+                document.getElementById('newProjectStart').value = '';
+                document.getElementById('newProjectEnd').value = '';
+                document.getElementById('newThickness').value = '';
+                document.getElementById('newTolerance').value = '';
+                document.getElementById('newProjectBRD').value = '2.40';
+                document.getElementById('newArea').value = '';
+                document.getElementById('rehabMaxTons').value = '';
+                
+                const typeSelect = document.getElementById('newProjectType');
+                if(typeSelect) typeSelect.value = 'new';
+                document.getElementById('configNew').classList.remove('hidden');
+                document.getElementById('configRehab').classList.add('hidden');
+
+                if (saveProjectBtn) saveProjectBtn.innerText = "Deploy Site Parameters";
+                cancelEditBtn.classList.add('hidden');
+                if(formContainer) formContainer.classList.add('hidden');
+                if(toggleFormBtn) toggleFormBtn.innerText = "+ Create Site";
+            });
+        }
+
+        if (saveProjectBtn) {
+            saveProjectBtn.addEventListener('click', async () => {
+                const name = document.getElementById('newProjectName') ? document.getElementById('newProjectName').value.trim() : '';
+                const type = document.getElementById('newProjectType') ? document.getElementById('newProjectType').value : 'new';
+                const startDate = document.getElementById('newProjectStart') ? document.getElementById('newProjectStart').value : null;
+                const endDate = document.getElementById('newProjectEnd') ? document.getElementById('newProjectEnd').value : null;
+                
+                const thickness = document.getElementById('newThickness') ? document.getElementById('newThickness').value : 0;
+                const tolerance = document.getElementById('newTolerance') ? document.getElementById('newTolerance').value : 0;
+                const brd = document.getElementById('newProjectBRD') ? document.getElementById('newProjectBRD').value : 2.40;
+                const area = document.getElementById('newArea') ? document.getElementById('newArea').value : 0;
+                const rehabTons = document.getElementById('rehabMaxTons') ? document.getElementById('rehabMaxTons').value : 0;
+
+                if (!name || !startDate || !endDate) return alert("⚠️ ALERT: Site Name, Start Date, and Deadline are required.");
+
+                const originalText = saveProjectBtn.innerText;
+                saveProjectBtn.innerText = editingProjectId ? "Updating..." : "Deploying to Field Devices...";
+                saveProjectBtn.disabled = true;
+
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+
+                    if (editingProjectId) {
+                        const { error } = await supabase.from('projects').update({ 
+                            project_name: name, contract_type: type, 
+                            start_date: startDate, end_date: endDate,
+                            design_thickness: parseFloat(thickness) || 0, tolerance: parseFloat(tolerance) || 0,
+                            target_brd: parseFloat(brd) || 2.40, target_area: parseFloat(area) || 0, max_tons: parseFloat(rehabTons) || 0
+                        }).eq('id', editingProjectId);
+                        if (error) throw error;
+                        editingProjectId = null;
+                        cancelEditBtn.classList.add('hidden');
+                    } else {
+                        const { error } = await supabase.from('projects').insert([{ 
+                            company_id: profile.company_id, project_name: name, contract_type: type,
+                            start_date: startDate, end_date: endDate,
+                            design_thickness: parseFloat(thickness) || 0, tolerance: parseFloat(tolerance) || 0, 
+                            target_brd: parseFloat(brd) || 2.40, target_area: parseFloat(area) || 0, 
+                            max_tons: parseFloat(rehabTons) || 0, rev_sqm: 0, rev_ton: 0, cost_per_ton: 0, is_active: true
+                        }]);
+                        if (error) throw error;
+                    }
+
+                    if (document.getElementById('newProjectName')) document.getElementById('newProjectName').value = '';
+                    document.querySelectorAll('#manager-tab-projects input').forEach(input => input.value = '');
+                    document.getElementById('newProjectBRD').value = '2.40';
+                    saveProjectBtn.innerText = "Deploy Site Parameters";
+                    if(formContainer) formContainer.classList.add('hidden');
+                    if(toggleFormBtn) toggleFormBtn.innerText = "+ Create Site";
+                    
+                    await loadActiveProjects();
+                    if(typeof loadFinanceProjects === 'function') await loadFinanceProjects(); 
+
+                } catch (err) {
+                    console.error("Error saving project:", err);
+                    alert("⚠️ ALERT: Failed to save jobsite.");
+                    saveProjectBtn.innerText = originalText;
+                } finally {
+                    saveProjectBtn.disabled = false;
+                }
+            });
+        }
+
+        // ==========================================
+        // THE BURN-DOWN ENGINE & SA CALENDAR
+        // ==========================================
+        let targetedProjectId = null;
+        let editingEventId = null; 
+        const voModal = document.getElementById('voModal');
+        const delayModal = document.getElementById('delayModal');
+
+        const saHolidaysCache = {};
+        function getSAHolidays(year) {
+            if (saHolidaysCache[year]) return saHolidaysCache[year];
+            
+            const h = [];
+            const add = (m, d) => h.push(new Date(year, m - 1, d));
+            
+            add(1, 1); add(3, 21); add(4, 27); add(5, 1); add(6, 16); add(8, 9); add(9, 24); add(12, 16); add(12, 25); add(12, 26); 
+            
+            const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+            const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+            const h_calc = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h_calc - k) % 7, m = Math.floor((a + 11 * h_calc + 22 * l) / 451);
+            const month = Math.floor((h_calc + l - 7 * m + 114) / 31);
+            const day = ((h_calc + l - 7 * m + 114) % 31) + 1;
+            
+            const easter = new Date(year, month - 1, day);
+            const goodFriday = new Date(easter); goodFriday.setDate(easter.getDate() - 2);
+            const familyDay = new Date(easter); familyDay.setDate(easter.getDate() + 1);
+            h.push(goodFriday, familyDay);
+
+            const observed = new Set();
+            const fmt = dte => { const y = dte.getFullYear(), m = String(dte.getMonth()+1).padStart(2,'0'), dd = String(dte.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; };
+            
+            h.forEach(date => {
+                observed.add(fmt(date));
+                if (date.getDay() === 0) { 
+                    const monday = new Date(date); monday.setDate(monday.getDate() + 1);
+                    if (date.getMonth() === 11 && date.getDate() === 25) {
+                        const tuesday = new Date(date); tuesday.setDate(tuesday.getDate() + 2);
+                        observed.add(fmt(tuesday));
+                    } else {
+                        observed.add(fmt(monday));
+                    }
+                }
+            });
+            
+            saHolidaysCache[year] = observed;
+            return observed;
+        }
+
+        function isWorkingDay(dateObj) {
+            const day = dateObj.getDay();
+            if (day === 0 || day === 6) return false;
+            const year = dateObj.getFullYear();
+            const ymd = `${year}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+            return !getSAHolidays(year).has(ymd); 
+        }
+
+        function getWorkingDays(startDateStr, endDateStr) {
+            if (!startDateStr || !endDateStr) return 0;
+            let start = new Date(startDateStr); start.setHours(0,0,0,0);
+            let end = new Date(endDateStr); end.setHours(0,0,0,0);
+            let count = 0;
+            let current = new Date(start);
+            while (current <= end) {
+                if (isWorkingDay(current)) count++;
+                current.setDate(current.getDate() + 1);
+            }
+            return count;
+        }
+
+        function getRevisedEndDate(startDateStr, totalWorkingDays) {
+            if (!startDateStr) return "N/A";
+            let current = new Date(startDateStr); current.setHours(0,0,0,0);
+            let daysCounted = isWorkingDay(current) ? 1 : 0;
+            
+            while (daysCounted < totalWorkingDays) {
+                current.setDate(current.getDate() + 1);
+                if (isWorkingDay(current)) daysCounted++;
+            }
+            const y = current.getFullYear();
+            const m = String(current.getMonth() + 1).padStart(2, '0');
+            const d = String(current.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        async function loadActiveProjects() {
+            const listEl = document.getElementById('activeProjectsList');
+            if(!listEl) return;
+            
+            try {
+                const [projRes, logRes, eventRes] = await Promise.all([
+                    supabase.from('projects').select('*').eq('is_active', true).order('created_at', { ascending: false }),
+                    supabase.from('pave_ops_logs').select('project_id, effective_mass, delivery_date'),
+                    supabase.from('project_events').select('*').order('created_at', { ascending: false })
+                ]);
+
+                if (projRes.error) throw projRes.error;
+                const projects = projRes.data;
+                const allLogs = logRes.data || [];
+                const allEvents = eventRes.data || [];
+                window.activeProjectsData = projects; 
+                window.allEventsData = allEvents; 
+
+                if (projects.length === 0) {
+                    listEl.innerHTML = '<p class="text-thememuted text-xs font-code uppercase tracking-widest">No active jobsites found.</p>';
+                    return;
+                }
+
+                listEl.innerHTML = '';
+
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                projects.forEach(p => {
+                    const projLogs = allLogs.filter(l => l.project_id === p.id);
+                    const projEvents = allEvents.filter(e => e.project_id === p.id);
+
+                    const projBrd = p.target_brd || 2.40;
+                    const baselineTons = p.contract_type === 'rehab' ? p.max_tons : (p.target_area * (p.design_thickness / 1000) * projBrd);
+                    
+                    const voEvents = projEvents.filter(e => e.event_type === 'variation');
+                    const voTons = voEvents.reduce((sum, e) => sum + Number(e.added_tons), 0);
+                    const voDays = voEvents.reduce((sum, e) => sum + Number(e.added_days), 0);
+                    
+                    const validDelayEvents = projEvents.filter(e => e.event_type === 'delay' && (e.category === 'client' || e.category === 'weather'));
+                    const delayDays = validDelayEvents.reduce((sum, e) => sum + Number(e.added_days), 0);
+
+                    const revisedTarget = baselineTons + voTons;
+                    const pavedTons = projLogs.reduce((sum, l) => sum + Number(l.effective_mass), 0);
+                    const remainingTons = Math.max(0, revisedTarget - pavedTons);
+
+                    const baseWorkingDays = getWorkingDays(p.start_date, p.end_date);
+                    const revisedWorkingDays = baseWorkingDays + voDays + delayDays;
+                    const revisedEndDateStr = getRevisedEndDate(p.start_date, revisedWorkingDays);
+                    
+                    const elapsedDays = getWorkingDays(p.start_date, todayStr);
+                    const remainingDays = Math.max(1, revisedWorkingDays - elapsedDays);
+                    
+                    const dailyRunRate = remainingTons / remainingDays;
+                    const averageProd = elapsedDays > 0 ? (pavedTons / elapsedDays) : 0;
+                    const yesterdayLogs = projLogs.filter(l => l.delivery_date === yesterdayStr);
+                    const yesterdayProd = yesterdayLogs.reduce((sum, l) => sum + Number(l.effective_mass), 0);
+
+                    let eventsHtml = '';
+                    if (projEvents.length > 0) {
+                        eventsHtml = `<div class="mt-4 pt-4 border-t border-themeborder/50">
+                            <span class="block text-[10px] font-code text-themeaccent uppercase tracking-widest mb-3 font-bold">Approved Variations & Delays</span>
+                            <div class="space-y-2 max-h-40 overflow-y-auto pr-2">`;
+                        
+                        projEvents.forEach(e => {
+                            const isVO = e.event_type === 'variation';
+                            const typeLabel = isVO ? 'V.O.' : 'DELAY';
+                            const colorClass = isVO ? 'text-themeaccent border-themeaccent/30' : 'text-rose-500 border-rose-500/30';
+                            
+                            eventsHtml += `
+                                <div class="flex flex-col bg-themebg border border-themeborder rounded-lg p-3 group transition-colors hover:border-themeaccent/50">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <span class="text-[9px] font-black ${colorClass} uppercase border px-1.5 py-0.5 rounded mr-2">${typeLabel}</span>
+                                            <span class="text-xs text-themetext font-medium">${e.description || 'No description'}</span>
+                                        </div>
+                                        <div class="text-[10px] font-code text-right font-bold">
+                                            ${e.added_tons > 0 ? `<span class="text-themeaccent">+${e.added_tons}t</span><br>` : ''}
+                                            ${e.added_days > 0 ? `<span class="text-rose-400">+${e.added_days} Days</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4 mt-2 pt-2 border-t border-themeborder/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="window.editEvent('${e.id}')" class="text-[9px] text-themeaccent hover:text-white uppercase tracking-widest font-bold transition-colors">Edit Details</button>
+                                        <button onclick="window.deleteEvent('${e.id}')" class="text-[9px] text-rose-500 hover:text-white uppercase tracking-widest font-bold transition-colors">Remove</button>
+                                    </div>
+                                </div>`;
+                        });
+                        eventsHtml += `</div></div>`;
+                    } else {
+                        eventsHtml = `<div class="mt-4 pt-4 border-t border-themeborder/50">
+                            <span class="block text-[10px] font-code text-thememuted uppercase tracking-widest font-bold">No Variations or Delays Logged</span>
+                        </div>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-themeinput p-6 rounded-2xl border border-themeborder mb-6 transition hover:border-themeaccent/50 shadow-lg relative overflow-hidden';
+                    
+                    card.innerHTML = `
+                        <div class="absolute top-0 left-0 w-full h-1 ${dailyRunRate > averageProd && elapsedDays > 2 ? 'bg-rose-500' : 'bg-themeaccent'}"></div>
+                        
+                        <div class="flex justify-between items-start mb-4 border-b border-themeborder/50 pb-4 mt-2">
+                            <div>
+                                <h4 class="text-lg font-black text-themetext uppercase tracking-widest">${p.project_name}</h4>
+                                <div class="flex gap-4 mt-2 text-[10px] font-code text-thememuted uppercase tracking-widest">
+                                    <span>Program: ${elapsedDays} / ${revisedWorkingDays} Days</span>
+                                    <span>Deadline: <strong class="text-themetext">${revisedEndDateStr}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex border-b border-themeborder mb-6">
+                            <button onclick="window.toggleProjectView('${p.id}', 'grid')" id="btn-grid-${p.id}" class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 text-themeaccent border-themeaccent transition-colors focus:outline-none">Telemetry Grid</button>
+                            <button onclick="window.toggleProjectView('${p.id}', 'chart')" id="btn-chart-${p.id}" class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 text-thememuted border-transparent hover:text-themetext transition-colors focus:outline-none">Burn-Up Trajectory</button>
+                        </div>
+
+                        <div id="view-grid-${p.id}" class="block">
+                            <div class="bg-themepanel border border-themeborder rounded-xl p-6 mb-6 text-center shadow-inner">
+                                <span class="block text-xs font-code ${dailyRunRate > averageProd && elapsedDays > 2 ? 'text-rose-500' : 'text-themeaccent'} font-bold uppercase tracking-widest mb-2">Required Daily Target</span>
+                                <span class="block text-6xl font-black text-themetext font-code tracking-tighter">${dailyRunRate.toFixed(1)}<span class="text-xl text-thememuted ml-1">t/day</span></span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-themepanel/50 border border-themeborder/50 rounded-xl p-4 text-center">
+                                    <span class="block text-[10px] font-code text-thememuted uppercase tracking-widest mb-1">Yesterday's Yield</span>
+                                    <span class="block text-xl font-bold text-themetext font-code">${yesterdayProd.toFixed(1)}t</span>
+                                </div>
+                                <div class="bg-themepanel/50 border border-themeborder/50 rounded-xl p-4 text-center">
+                                    <span class="block text-[10px] font-code text-thememuted uppercase tracking-widest mb-1">Average Paved</span>
+                                    <span class="block text-xl font-bold text-themetext font-code">${averageProd.toFixed(1)}t/d</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="text-center">
+                                    <span class="text-[9px] font-code text-thememuted uppercase tracking-widest block mb-1">Target</span>
+                                    <span class="text-sm font-black text-themetext">${revisedTarget.toFixed(2)}t</span>
+                                </div>
+                                <div class="text-center border-l border-r border-themeborder/50">
+                                    <span class="text-[9px] font-code text-themeaccent uppercase tracking-widest block mb-1">Paved</span>
+                                    <span class="text-sm font-black text-themeaccent">${pavedTons.toFixed(2)}t</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-[9px] font-code text-rose-500 uppercase tracking-widest block mb-1">Remain</span>
+                                    <span class="text-sm font-black text-rose-500">${remainingTons.toFixed(2)}t</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="view-chart-${p.id}" class="hidden mb-6 h-64 w-full bg-themepanel border border-themeborder rounded-xl p-4">
+                            <canvas id="canvas-${p.id}"></canvas>
+                        </div>
+
+                        ${eventsHtml}
+
+                        <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-themeborder/50">
+                            <button onclick="window.openVO('${p.id}')" class="text-[9px] font-bold uppercase tracking-widest py-3 rounded-lg bg-themebg border border-themeborder hover:text-themeaccent transition-colors shadow-sm">Log V.O.</button>
+                            <button onclick="window.openDelay('${p.id}')" class="text-[9px] font-bold uppercase tracking-widest py-3 rounded-lg bg-themebg border border-themeborder hover:text-rose-500 transition-colors shadow-sm">Log Delay</button>
+                            <button onclick="window.editProject('${p.id}')" class="text-[9px] font-bold uppercase tracking-widest py-3 rounded-lg bg-themebg border border-themeborder hover:bg-themeinput transition-colors shadow-sm">Edit Site</button>
+                        </div>
+                    `;
+                    listEl.appendChild(card);
+
+                    setTimeout(() => window.renderBurnUpChart(p.id, elapsedDays, revisedWorkingDays, pavedTons, revisedTarget), 50);
+                });
+            } catch (err) {
+                console.error(err);
+                listEl.innerHTML = '<p class="text-rose-500 text-xs font-code">Error syncing telemetry.</p>';
+            }
+        }
+
+        window.toggleProjectView = (projectId, view) => {
+            const grid = document.getElementById(`view-grid-${projectId}`);
+            const chart = document.getElementById(`view-chart-${projectId}`);
+            const btnGrid = document.getElementById(`btn-grid-${projectId}`);
+            const btnChart = document.getElementById(`btn-chart-${projectId}`);
+
+            if (view === 'grid') {
+                grid.classList.remove('hidden');
+                chart.classList.add('hidden');
+                btnGrid.classList.replace('text-thememuted', 'text-themeaccent');
+                btnGrid.classList.replace('border-transparent', 'border-themeaccent');
+                btnChart.classList.replace('text-themeaccent', 'text-thememuted');
+                btnChart.classList.replace('border-themeaccent', 'border-transparent');
+            } else {
+                grid.classList.add('hidden');
+                chart.classList.remove('hidden');
+                btnChart.classList.replace('text-thememuted', 'text-themeaccent');
+                btnChart.classList.replace('border-transparent', 'border-themeaccent');
+                btnGrid.classList.replace('text-themeaccent', 'text-thememuted');
+                btnGrid.classList.replace('border-themeaccent', 'border-transparent');
+            }
+        };
+
+        window.activeCharts = window.activeCharts || {}; 
+        window.renderBurnUpChart = (id, elapsed, totalDays, paved, target) => {
+            const ctx = document.getElementById(`canvas-${id}`);
+            if (!ctx) return;
+
+            if (window.activeCharts[id]) window.activeCharts[id].destroy();
+
+            window.activeCharts[id] = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Ideal Contract Path',
+                            data: [{ x: 0, y: 0 }, { x: totalDays, y: target }],
+                            borderColor: '#64748b', 
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            showLine: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Actual Progress',
+                            data: [{ x: 0, y: 0 }, { x: elapsed, y: paved }],
+                            borderColor: '#FFCB05', 
+                            backgroundColor: '#FFCB05',
+                            borderWidth: 3,
+                            showLine: true,
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'Required Trajectory',
+                            data: [{ x: elapsed, y: paved }, { x: totalDays, y: target }],
+                            borderColor: '#e11d48', 
+                            borderWidth: 2,
+                            borderDash: [3, 3],
+                            showLine: true,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            type: 'linear', position: 'bottom', title: { display: true, text: 'Working Days', color: '#94a3b8' },
+                            grid: { color: 'rgba(100, 116, 139, 0.1)' }, ticks: { color: '#94a3b8' },
+                            min: 0, max: totalDays + (totalDays * 0.05) 
+                        },
+                        y: { 
+                            title: { display: true, text: 'Cumulative Tonnage (t)', color: '#94a3b8' },
+                            grid: { color: 'rgba(100, 116, 139, 0.1)' }, ticks: { color: '#94a3b8' },
+                            min: 0, max: target + (target * 0.1) 
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', font: { family: 'JetBrains Mono', size: 10 } } },
+                        tooltip: { backgroundColor: '#141a22', titleFont: { family: 'JetBrains Mono' }, bodyFont: { family: 'JetBrains Mono' } }
+                    }
+                }
+            });
+        };
+
+        window.openVO = (id) => { targetedProjectId = id; editingEventId = null; voModal.classList.remove('hidden'); document.getElementById('voTons').value=''; document.getElementById('voDays').value=''; document.getElementById('voDesc').value=''; document.getElementById('saveVoBtn').innerText = 'Lock VO'; };
+        window.openDelay = (id) => { targetedProjectId = id; editingEventId = null; delayModal.classList.remove('hidden'); document.getElementById('delayDays').value='1'; document.getElementById('delayDesc').value=''; document.getElementById('saveDelayBtn').innerText = 'Log Delay'; };
+        
+        window.editEvent = (eventId) => {
+            const event = window.allEventsData.find(e => e.id === eventId);
+            if (!event) return;
+            
+            editingEventId = eventId;
+            targetedProjectId = event.project_id;
+            
+            if (event.event_type === 'variation') {
+                document.getElementById('voTons').value = event.added_tons || 0;
+                document.getElementById('voDays').value = event.added_days || 0;
+                document.getElementById('voDesc').value = event.description || '';
+                document.getElementById('saveVoBtn').innerText = 'Update VO';
+                voModal.classList.remove('hidden');
+            } else if (event.event_type === 'delay') {
+                document.getElementById('delayCategory').value = event.category || 'client';
+                document.getElementById('delayDays').value = event.added_days || 1;
+                document.getElementById('delayDesc').value = event.description || '';
+                document.getElementById('saveDelayBtn').innerText = 'Update Delay';
+                delayModal.classList.remove('hidden');
+            }
+        };
+
+        window.deleteEvent = async (eventId) => {
+            if (!confirm("Are you sure you want to remove this entry? The project deadline will recalculate instantly.")) return;
+            try {
+                const { error } = await supabase.from('project_events').delete().eq('id', eventId);
+                if (error) throw error;
+                await loadActiveProjects();
+            } catch (err) {
+                console.error(err);
+                alert("Failed to delete entry.");
+            }
+        };
+
+        window.editProject = (id) => {
+            const proj = window.activeProjectsData.find(p => p.id === id);
+            if(!proj) return;
+            
+            editingProjectId = id;
+            
+            document.getElementById('newProjectName').value = proj.project_name;
+            document.getElementById('newProjectStart').value = proj.start_date || '';
+            document.getElementById('newProjectEnd').value = proj.end_date || '';
+            document.getElementById('newThickness').value = proj.design_thickness;
+            document.getElementById('newTolerance').value = proj.tolerance;
+            document.getElementById('newProjectBRD').value = proj.target_brd || '2.40';
+            document.getElementById('newArea').value = proj.target_area || '';
+            document.getElementById('rehabMaxTons').value = proj.max_tons || '';
+            
+            const typeSelect = document.getElementById('newProjectType');
+            if(typeSelect) typeSelect.value = proj.contract_type;
+            
+            if (proj.contract_type === 'new') {
+                document.getElementById('configNew').classList.remove('hidden');
+                document.getElementById('configRehab').classList.add('hidden');
+            } else {
+                document.getElementById('configNew').classList.add('hidden');
+                document.getElementById('configRehab').classList.remove('hidden');
+            }
+            
+            if(saveProjectBtn) saveProjectBtn.innerText = "Update Site Parameters";
+            if (cancelEditBtn) cancelEditBtn.classList.remove('hidden');
+            
+            const formContainer = document.getElementById('projectFormContainer');
+            const toggleFormBtn = document.getElementById('toggleProjectFormBtn');
+            if (formContainer && toggleFormBtn) {
+                formContainer.classList.remove('hidden');
+                toggleFormBtn.innerText = "- Close Menu";
+            }
+            
+            document.getElementById('manager-tab-projects').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        document.getElementById('cancelVoBtn')?.addEventListener('click', () => voModal.classList.add('hidden'));
+        document.getElementById('cancelDelayBtn')?.addEventListener('click', () => delayModal.classList.add('hidden'));
+
+        document.getElementById('saveVoBtn')?.addEventListener('click', async () => {
+            const tons = document.getElementById('voTons').value || 0;
+            const days = document.getElementById('voDays').value || 0;
+            const desc = document.getElementById('voDesc').value;
+            if(!tons && !days) return alert("Must add tons or days.");
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+                
+                if (editingEventId) {
+                    await supabase.from('project_events').update({
+                        added_tons: parseFloat(tons), added_days: parseInt(days), description: desc
+                    }).eq('id', editingEventId);
+                } else {
+                    await supabase.from('project_events').insert([{
+                        company_id: profile.company_id, project_id: targetedProjectId,
+                        event_type: 'variation', category: 'scope_addition',
+                        added_tons: parseFloat(tons), added_days: parseInt(days), description: desc
+                    }]);
+                }
+                
+                voModal.classList.add('hidden');
+                await loadActiveProjects();
+            } catch(e) { console.error(e); alert("Failed to log/update VO."); }
+        });
+
+        document.getElementById('saveDelayBtn')?.addEventListener('click', async () => {
+            const cat = document.getElementById('delayCategory').value;
+            const days = document.getElementById('delayDays').value || 1;
+            const desc = document.getElementById('delayDesc').value;
+            if(!desc) return alert("Must provide a reason for the delay.");
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+                
+                if (editingEventId) {
+                    await supabase.from('project_events').update({
+                        category: cat, added_days: parseInt(days), description: desc
+                    }).eq('id', editingEventId);
+                } else {
+                    await supabase.from('project_events').insert([{
+                        company_id: profile.company_id, project_id: targetedProjectId,
+                        event_type: 'delay', category: cat,
+                        added_days: parseInt(days), description: desc
+                    }]);
+                }
+                
+                delayModal.classList.add('hidden');
+                await loadActiveProjects();
+            } catch(e) { console.error(e); alert("Failed to log/update delay."); }
+        });
+
+        // ==========================================
+        // FINANCIAL ENGINE LOGIC
+        // ==========================================
+        async function loadFinanceProjects() {
+            const selector = document.getElementById('financeProjectSelector');
+            if(!selector) return;
+            try {
+                const { data: projects, error } = await supabase.from('projects').select('*').eq('is_active', true).order('created_at', { ascending: false });
+                if(error) throw error;
+                
+                selector.innerHTML = '<option value="">Select a project...</option>';
+                window.financeProjectsData = projects; 
+                
+                projects.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.project_name;
+                    selector.appendChild(opt);
+                });
+            } catch(e) { console.error("Finance Sync Error:", e); }
+        }
+
+        const finSel = document.getElementById('financeProjectSelector');
+        const finInputs = document.getElementById('financeInputs');
+        const finRevLabel = document.getElementById('financeRevLabel');
+        const finRev = document.getElementById('financeRev');
+        const finCost = document.getElementById('financeCost');
+
+        if(finSel) {
+            finSel.addEventListener('change', (e) => {
+                if(!e.target.value) {
+                    if(finInputs) finInputs.classList.add('hidden');
+                    return;
+                }
+                const proj = window.financeProjectsData.find(p => p.id === e.target.value);
+                if(proj && finInputs) {
+                    finInputs.classList.remove('hidden');
+                    
+                    finRevLabel.textContent = proj.contract_type === 'rehab' ? 'Revenue / Ton (R)' : 'Revenue / m² (R)';
+                    finRev.value = proj.contract_type === 'rehab' ? (proj.rev_ton || '') : (proj.rev_sqm || '');
+                    finCost.value = proj.cost_per_ton || '';
+                }
+            });
+        }
+
+        const saveFinBtn = document.getElementById('saveFinanceBtn');
+        if(saveFinBtn) {
+            saveFinBtn.addEventListener('click', async () => {
+                const projId = finSel.value;
+                if(!projId) return;
+                
+                const proj = window.financeProjectsData.find(p => p.id === projId);
+                const rev = parseFloat(finRev.value) || 0;
+                const cost = parseFloat(finCost.value) || 0;
+
+                const updateData = { cost_per_ton: cost };
+                if(proj.contract_type === 'rehab') updateData.rev_ton = rev;
+                else updateData.rev_sqm = rev;
+
+                const originalText = saveFinBtn.innerText;
+                saveFinBtn.innerText = "Securing Vault...";
+                saveFinBtn.disabled = true;
+
+                try {
+                    const { error } = await supabase.from('projects').update(updateData).eq('id', projId);
+                    if(error) throw error;
+                    
+                    alert("Financial Parameters Locked Successfully.");
+                    await loadFinanceProjects(); 
+                    if(finInputs) finInputs.classList.add('hidden');
+                    if(finSel) finSel.value = '';
+                } catch(e) {
+                    console.error(e); 
+                    alert("⚠️ Error: Failed to secure financial parameters.");
+                } finally {
+                    saveFinBtn.innerText = originalText;
+                    saveFinBtn.disabled = false;
+                }
+            });
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => toggleSidebar(false));
+        if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+        if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => toggleSidebar(true));
+    })();
+    </script>
+
+    <script>
+        window.initPaverDigitalTwin = function() {
+            if (window.paverEngineActive) return;
+            window.paverEngineActive = true;
+
+            const container = document.getElementById('paveops-3d-viewport');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x1e293b, 0.015);
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(20, 15, -25);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.maxPolarAngle = Math.PI / 2 - 0.1;
+            controls.target.set(0, 2, 0);
+
+            const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            dirLight.position.set(20, 40, -10);
+            scene.add(dirLight);
+
+            const gridHelper = new THREE.GridHelper(300, 300, 0x334155, 0x0f172a);
+            gridHelper.position.y = -0.1;
+            scene.add(gridHelper);
+
+            // ==========================================
+            // PROCEDURAL ASPHALT TEXTURE GENERATOR
+            // ==========================================
+            function createAsphaltTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512; canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#0c0c0c'; 
+                ctx.fillRect(0, 0, 512, 512);
+                for(let i=0; i<40000; i++) {
+                    const val = Math.random();
+                    if (val > 0.85) ctx.fillStyle = '#2a2a2a'; 
+                    else if (val > 0.4) ctx.fillStyle = '#050505'; 
+                    else ctx.fillStyle = '#181818'; 
+                    ctx.fillRect(Math.random() * 512, Math.random() * 512, Math.random() * 2.5, Math.random() * 2.5);
+                }
+                const texture = new THREE.CanvasTexture(canvas);
+                texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(4, 100); 
+                return texture;
+            }
+
+            const asphaltTex = createAsphaltTexture();
+            const asphaltMat = new THREE.MeshStandardMaterial({ map: asphaltTex, roughness: 0.8, metalness: 0.15 });
+            const badAsphaltMat = new THREE.MeshStandardMaterial({ color: 0x3b1111, roughness: 0.9, metalness: 0.1 });
+
+            const paver = new THREE.Group();
+            scene.add(paver);
+
+            // ==========================================
+            // SUBTLE STEAM PARTICLE SYSTEM
+            // ==========================================
+            const particleCount = 40;
+            const particleGeo = new THREE.BufferGeometry();
+            const particlePos = new Float32Array(particleCount * 3);
+            const particleVel = [];
+            
+            for(let i=0; i<particleCount; i++){
+                particlePos[i*3] = (Math.random() - 0.5) * 5.0; 
+                particlePos[i*3+1] = Math.random() * 1.0;       
+                particlePos[i*3+2] = -(Math.random() * 2.0) - 3.5; 
+                particleVel.push({ x: (Math.random() - 0.5) * 0.005, y: Math.random() * 0.01 + 0.005, z: (Math.random() - 0.5) * 0.005 });
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+            const particleMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, transparent: true, opacity: 0.06, depthWrite: false, blending: THREE.AdditiveBlending });
+            const steamParticles = new THREE.Points(particleGeo, particleMat);
+            steamParticles.visible = false; 
+            paver.add(steamParticles);
+
+            // ==========================================
+            // GLB CUSTOM MODEL LOADER
+            // ==========================================
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                '/assets/wirtgen-paver.glb', 
+                function (gltf) {
+                    const customModel = gltf.scene;
+                    const box = new THREE.Box3().setFromObject(customModel);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scaleFactor = 6.0 / maxDim; 
+                    customModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    
+                    customModel.position.x = -center.x * scaleFactor;
+                    customModel.position.z = -center.z * scaleFactor;
+                    customModel.position.y = (-box.min.y * scaleFactor) + 0.05; 
+                    
+                    // IF MODEL FACES THE WRONG WAY, CHANGE THIS LINE: 
+                    // Try Math.PI or -Math.PI/2 or 0 until it faces forward
+                    customModel.rotation.y = -Math.PI / 2; 
+
+                    customModel.traverse((node) => {
+                        if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; }
+                    });
+
+                    paver.add(customModel);
+                    steamParticles.visible = true; 
+
+                    const loaderUI = document.getElementById('dt-loader');
+                    if (loaderUI) { loaderUI.style.opacity = '0'; setTimeout(() => loaderUI.style.display = 'none', 500); }
+                }, 
+                function (xhr) {
+                    const prog = document.getElementById('dt-progress');
+                    if (prog) prog.innerText = Math.round(xhr.loaded / xhr.total * 100) + '%';
+                }, 
+                function (error) { console.error("CRITICAL ERROR", error); }
+            );
+
+            // ==========================================
+            // REALISTIC ENVIRONMENT BASE
+            // ==========================================
+            const MAX_LANE_LENGTH = 150; 
+            const LANE_WIDTH = 3.5; // Narrower lane width
+            
+            const grass = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x243815, roughness: 1.0 }));
+            grass.rotation.x = -Math.PI / 2; grass.position.set(0, -0.05, 50); scene.add(grass);
+
+            const gravel = new THREE.Mesh(new THREE.PlaneGeometry(LANE_WIDTH + 2.0, MAX_LANE_LENGTH + 50), new THREE.MeshStandardMaterial({ color: 0x5a544a, roughness: 0.9 }));
+            gravel.rotation.x = -Math.PI / 2; gravel.position.set(0, 0.0, MAX_LANE_LENGTH / 2 - 10); scene.add(gravel);
+
+            const unpavedPath = new THREE.Mesh(new THREE.PlaneGeometry(LANE_WIDTH, MAX_LANE_LENGTH), new THREE.MeshStandardMaterial({ color: 0x2a241e, roughness: 0.9 }));
+            unpavedPath.rotation.x = -Math.PI / 2; unpavedPath.position.set(0, 0.02, MAX_LANE_LENGTH / 2); scene.add(unpavedPath);
+
+            // ==========================================
+            // SPATIAL RAYCASTING & SEGMENTATION LOGIC
+            // ==========================================
+            const pavedSegmentsGroup = new THREE.Group();
+            scene.add(pavedSegmentsGroup);
+
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            const tooltip = document.getElementById('dt-tooltip');
+            let hoveredMesh = null;
+
+            container.addEventListener('mousemove', (event) => {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+                if (tooltip) {
+                    tooltip.style.left = (event.clientX - rect.left + 15) + 'px';
+                    tooltip.style.top = (event.clientY - rect.top + 15) + 'px';
+                }
+            });
+
+            let currentZ = 0;
+            let targetZ = 0;
+
+            // INTELLIGENT HOOK: Rebuilds the mat with proper Garbage Collection
+            window.updateDigitalTwin = function(pavedArea, targetArea, ticketsArray, specThick, specTol) {
+                if (document.getElementById('dt-paved')) document.getElementById('dt-paved').innerText = pavedArea.toFixed(1) + ' m²';
+                if (document.getElementById('dt-target')) document.getElementById('dt-target').innerText = targetArea > 0 ? targetArea.toFixed(1) + ' m²' : '0 m²';
+                const remaining = Math.max(0, targetArea - pavedArea);
+                if (document.getElementById('dt-remain')) document.getElementById('dt-remain').innerText = remaining.toFixed(1) + ' m²';
+                const percent = targetArea > 0 ? (pavedArea / targetArea) : 0;
+                if (document.getElementById('dt-percent')) document.getElementById('dt-percent').innerText = (percent * 100).toFixed(1) + '%';
+
+                targetZ = percent * MAX_LANE_LENGTH;
+
+                // 1. PROPER GARBAGE COLLECTION
+                while(pavedSegmentsGroup.children.length > 0){ 
+                    const child = pavedSegmentsGroup.children[0];
+                    pavedSegmentsGroup.remove(child);
+                    if (child.geometry) child.geometry.dispose(); 
+                }
+
+                if (targetArea <= 0 || ticketsArray.length === 0) return;
+
+                const sortedLogs = [...ticketsArray].sort((a,b) => new Date(a.scanned_at || a.t) - new Date(b.scanned_at || b.t));
+
+                let offsetZ = 0;
+                
+                // 2. REUSABLE ASSETS: White lines
+                const sharedLineGeom = new THREE.PlaneGeometry(LANE_WIDTH, 0.15); 
+                const sharedLineMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); 
+                
+                sortedLogs.forEach((log, index) => {
+                    const ticketArea = Number(log.total_area || log.area || 0);
+                    if (ticketArea <= 0) return;
+
+                    const segmentLength3D = (ticketArea / targetArea) * MAX_LANE_LENGTH;
+                    const logThick = Number(log.calculated_thickness || log.thickness || 0);
+
+                    const minL = specThick - specTol;
+                    const maxL = specThick + specTol;
+                    const inSpec = (logThick >= minL && logThick <= maxL);
+                    const matToUse = inSpec ? asphaltMat : badAsphaltMat;
+
+                    const segmentGeom = new THREE.PlaneGeometry(LANE_WIDTH, segmentLength3D);
+                    const segmentMesh = new THREE.Mesh(segmentGeom, matToUse);
+                    
+                    segmentMesh.rotation.x = -Math.PI / 2;
+                    segmentMesh.position.set(0, 0.05, offsetZ + (segmentLength3D / 2));
+
+                    segmentMesh.userData = {
+                        ticketId: log.ticket_number || log.truck || 'N/A',
+                        mix: log.mix_type || log.material || 'N/A',
+                        tons: Number(log.effective_mass || log.tonnage || 0).toFixed(2),
+                        thickness: logThick.toFixed(1),
+                        inSpec: inSpec,
+                        date: log.delivery_date || "N/A"
+                    };
+
+                    pavedSegmentsGroup.add(segmentMesh);
+
+                    if (index > 0) {
+                        const lineMesh = new THREE.Mesh(sharedLineGeom, sharedLineMat);
+                        lineMesh.rotation.x = -Math.PI / 2;
+                        lineMesh.position.set(0, 0.055, offsetZ); 
+                        pavedSegmentsGroup.add(lineMesh);
+                    }
+
+                    offsetZ += segmentLength3D;
+                });
+            };
+            // ==========================================
+            // TIME-SCRUBBER LOGIC (VISIBILITY TOGGLE)
+            // ==========================================
+            const scrubber = document.getElementById('dt-scrubber');
+            const scrubberLabel = document.getElementById('dt-scrubber-label');
+
+            if (scrubber) {
+                scrubber.addEventListener('input', (e) => {
+                    const pct = e.target.value / 100;
+                    
+                    if (scrubberLabel) {
+                        scrubberLabel.innerText = pct === 1 ? 'Live (100%)' : `Rewind: ${Math.round(pct * 100)}%`;
+                    }
+
+                    // Move the paver backwards in time
+                    const maxZ = targetZ; // The end of the road based on live data
+                    const scrubbedZ = maxZ * pct;
+                    
+                    // Instantly snap the paver to the scrubbed timeline
+                    currentZ = scrubbedZ;
+                    paver.position.z = currentZ;
+                    camera.position.z = 20 + currentZ; // Reset camera offset
+                    controls.target.z = currentZ;
+
+                    // Hide tickets that haven't happened yet in this scrubbed timeline
+                    pavedSegmentsGroup.children.forEach(child => {
+                        // The child's Z position is its center. If its position is greater than our scrubber, hide it!
+                        if (child.position.z > scrubbedZ) {
+                            child.visible = false;
+                        } else {
+                            child.visible = true;
+                        }
+                    });
+                });
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+
+                if (currentZ < targetZ) {
+                    currentZ += 0.05; 
+                    paver.position.z = currentZ;
+                    camera.position.z += 0.05;
+                    controls.target.z += 0.05;
+                }
+
+                if (steamParticles.visible) {
+                    const positions = steamParticles.geometry.attributes.position.array;
+                    for(let i=0; i<particleCount; i++) {
+                        positions[i*3] += particleVel[i].x;
+                        positions[i*3+1] += particleVel[i].y;
+                        positions[i*3+2] += particleVel[i].z;
+                        if(positions[i*3+1] > 2.5) {
+                            positions[i*3] = (Math.random() - 0.5) * 5.0; 
+                            positions[i*3+1] = 0; 
+                            positions[i*3+2] = -(Math.random() * 2.0) - 3.5; 
+                        }
+                    }
+                    steamParticles.geometry.attributes.position.needsUpdate = true;
+                }
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(pavedSegmentsGroup.children);
+
+                if (intersects.length > 0 && tooltip) {
+                    const object = intersects[0].object;
+                    if (hoveredMesh !== object && object.userData.ticketId) { // Added check so lines don't trigger the HUD
+                        hoveredMesh = object;
+                        const data = object.userData;
+                        
+                        tooltip.innerHTML = `
+                            <div class="flex justify-between items-center border-b border-themeborder pb-2 mb-2">
+                                <span class="text-[10px] font-code text-thememuted uppercase tracking-widest">Ticket ID</span>
+                                <span class="text-xs font-black text-themetext">${data.ticketId}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-left">
+                                <div>
+                                    <span class="block text-[8px] font-code text-thememuted uppercase tracking-widest">Yield</span>
+                                    <span class="text-xs font-bold text-themetext">${data.tons}t</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[8px] font-code text-thememuted uppercase tracking-widest">Mix</span>
+                                    <span class="text-xs font-bold text-themetext truncate">${data.mix}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-themeborder text-center rounded bg-themeinput/50 p-2 border ${data.inSpec ? 'border-emerald-500/30' : 'border-rose-500/50'}">
+                                <span class="block text-[8px] font-code uppercase tracking-widest ${data.inSpec ? 'text-emerald-500' : 'text-rose-500'}">${data.inSpec ? 'COMPLIANT' : 'OUT OF SPECIFICATION'}</span>
+                                <span class="text-xl font-black ${data.inSpec ? 'text-emerald-500' : 'text-rose-500'}">${data.thickness}mm</span>
+                            </div>
+                        `;
+                        tooltip.style.opacity = '1';
+                    }
+                } else if (tooltip) {
+                    hoveredMesh = null;
+                    tooltip.style.opacity = '0';
+                }
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        };
+
+        // ==========================================
+        // ENTERPRISE PDF REPORT GENERATOR (jsPDF + AutoTable)
+        // ==========================================
+        window.generateLedgerPDF = async () => {
+            const btn = document.getElementById('pdfExportBtn');
+            const originalText = btn ? btn.innerText : 'Export PDF Report';
+            if (btn) {
+                btn.innerText = "Compiling Data...";
+                btn.disabled = true;
+            }
+
+            try {
+                // 1. Fetch & Filter Data
+                const dtSelector = document.getElementById('digitalTwinProjectSelector');
+                let selectedProjId = dtSelector ? dtSelector.value : null;
+                
+                let query = window.supabaseClient.from('pave_ops_logs').select('*').order('scanned_at', { ascending: false });
+                if (selectedProjId) query = query.eq('project_id', selectedProjId);
+
+                const { data: logs, error } = await query;
+                if (error) throw error;
+                if (!logs || logs.length === 0) return alert("No data available to export for this selection.");
+
+                // 2. Identify Project
+                let projectName = "Consolidated Corporate Sites";
+                if (selectedProjId && window.activeProjectsData) {
+                    const proj = window.activeProjectsData.find(p => p.id === selectedProjId);
+                    if (proj) projectName = proj.project_name;
+                }
+
+                // 3. Calculate KPIs
+                const totalTons = logs.reduce((sum, l) => sum + Number(l.effective_mass || 0), 0);
+                const totalWastage = logs.reduce((sum, l) => sum + Number(l.wasted_mass || 0), 0);
+                const totalArea = logs.reduce((sum, l) => sum + Number(l.total_area || 0), 0);
+
+                // 4. Initialize PDF Engine (Landscape A4)
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4'); // 'l' = landscape
+                
+                // Colors
+                const textDark = '#111827';
+                const textMuted = '#6b7280';
+                const brandAccent = '#FFCB05'; // Stefanutti Yellow
+                const danger = '#e11d48'; // Rose
+
+                // --- PAGE 1: EXECUTIVE DASHBOARD ---
+                
+                // Header
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(26);
+                doc.setTextColor(textDark);
+                doc.text(projectName.toUpperCase(), 14, 30);
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(textMuted);
+                doc.text("PAVE LEDGER SUMMARY REPORT", 14, 38);
+
+                // Meta Info (Right aligned)
+                const generatedDate = new Date().toLocaleString();
+                doc.setFontSize(9);
+                doc.text(`Generated: ${generatedDate}`, 283, 30, { align: 'right' });
+                doc.setDrawColor(229, 231, 235);
+                doc.line(14, 45, 283, 45); // Horizontal line
+
+                // KPI Blocks rendering function
+                const drawKPI = (title, value, x, y, valColor) => {
+                    doc.setFillColor(248, 250, 252);
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(x, y, 62, 35, 3, 3, 'FD'); // Width 62mm
+                    
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(9);
+                    doc.setTextColor(textMuted);
+                    doc.text(title.toUpperCase(), x + 31, y + 12, { align: 'center' });
+                    
+                    doc.setFontSize(22);
+                    doc.setTextColor(valColor);
+                    doc.text(value, x + 31, y + 25, { align: 'center' });
+                };
+
+                // Draw the 4 KPI blocks
+                const kpiY = 60;
+                drawKPI("Total Tickets", logs.length.toString(), 14, kpiY, textDark);
+                drawKPI("Total Paved Area", `${totalArea.toFixed(1)} sqm`, 81, kpiY, textDark);
+                drawKPI("Total Wastage", `${totalWastage.toFixed(2)} t`, 148, kpiY, danger);
+                drawKPI("Net Effective Yield", `${totalTons.toFixed(2)} t`, 215, kpiY, brandAccent);
+
+                // --- PAGE 2+: MASTER LEDGER TABLE ---
+                
+                // Force a page break for the table
+                doc.addPage();
+                
+                // Table Header on new page
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.setTextColor(textDark);
+                doc.text("MASTER PAVE LEDGER LOG", 14, 20);
+                
+                // Format Data for AutoTable
+                const tableData = logs.map(row => {
+                    return [
+                        row.delivery_date || new Date(row.scanned_at).toISOString().split('T')[0],
+                        row.vehicle_registration || 'Unknown',
+                        row.supplier_company && row.supplier_company !== "Unknown" ? row.supplier_company : '-',
+                        row.mix_type || '-',
+                        row.pave_location || '-',
+                        `${row.start_chainage || 0} - ${row.end_chainage || 0}m`,
+                        row.pave_temperature ? `${row.pave_temperature}°` : '-',
+                        `${parseFloat(row.wasted_mass || 0).toFixed(2)}t`,
+                        `${parseFloat(row.effective_mass || 0).toFixed(2)}t`,
+                        `${parseFloat(row.calculated_thickness || 0).toFixed(1)}mm`
+                    ];
+                });
+
+                // Generate Native Table
+                doc.autoTable({
+                    startY: 28,
+                    head: [['Date', 'Reg', 'Supplier', 'Mix Type', 'Loc', 'Chainage', 'Temp', 'Wastage', 'Yield', 'Thick']],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { 
+                        font: 'helvetica', 
+                        fontSize: 8,
+                        cellPadding: 2, // <-- REDUCED PADDING to give text more horizontal space
+                        textColor: [51, 65, 85]
+                    },
+                    headStyles: { 
+                        fillColor: [31, 41, 55],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 20 }, // Date
+                        1: { cellWidth: 24 }, // Reg (Widened to prevent LW80MRGP breaking)
+                        2: { cellWidth: 'auto' }, // Supplier
+                        3: { cellWidth: 'auto' }, // Mix
+                        4: { cellWidth: 18 }, // Loc
+                        5: { cellWidth: 28, fontStyle: 'bold', textColor: [5, 150, 105] }, // Chainage
+                        6: { cellWidth: 16, halign: 'center' }, // Temp (Widened)
+                        7: { cellWidth: 18, halign: 'right', textColor: [225, 29, 72] }, // Wastage
+                        8: { cellWidth: 18, halign: 'right', fontStyle: 'bold' }, // Yield
+                        9: { cellWidth: 20, halign: 'right', fontStyle: 'bold', textColor: [37, 99, 235] } // Thick (Widened)
+                    },
+                    alternateRowStyles: {
+                        fillColor: [248, 250, 252] // Subtle zebra striping
+                    },
+                    // Footer injection for page numbers
+                    didDrawPage: function (data) {
+                        let pageString = 'Page ' + doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setTextColor(150);
+                        doc.text(pageString, 283, 200, { align: 'right' });
+                    }
+                });
+
+                // 5. Save the PDF
+                const fileName = `${projectName.replace(/\s+/g, '_')}_Pave_Ledger_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+
+            } catch (err) {
+                console.error("PDF Generation Error:", err);
+                alert("Failed to generate PDF. Check console for details.");
+            } finally {
+                if (btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+        };
+        
+    </script>
+</body>
+</html>
